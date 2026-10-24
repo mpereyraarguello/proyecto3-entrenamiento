@@ -1,0 +1,208 @@
+/* Declaración de la fuente local OTF */
+@font-face {
+  font-family: 'Coolvetica';
+  src: url('../../../assets/fonts/coolvetica.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bg-main: #121212;
+  --bg-surface: #1e1e1e;
+  --color-primary: #00ff00;
+  --color-text: #ffffff;
+  --color-subtext: #6e8b7e;
+  --color-error: #8b0000;
+  --color-error-bg: rgba(139, 0, 0, 0.15);
+
+  --font-coolvetica: "Coolvetica", sans-serif;
+  --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.inicio {
+  min-height: 100vh;
+  background: var(--bg-main);
+  color: var(--color-text);
+  padding: 40px 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.inicio__container {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Header */
+header {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.inicio__encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.inicio__icono {
+  width: 36px;
+  height: 36px;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.inicio__titulo {
+  font-family: var(--font-coolvetica) !important;
+  font-weight: 400;
+  font-size: 2.2rem;
+  letter-spacing: 0.8px;
+  margin: 0;
+  color: var(--color-text);
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.inicio__subtitulo {
+  font-family: var(--font-body);
+  color: var(--color-subtext);
+  font-size: 0.95rem;
+  margin: 8px 0 0;
+  line-height: 1.4;
+}
+
+/* Card del Plan Activo - Borde lateral impecable con ::before */
+.inicio__card {
+  position: relative;
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid rgba(110, 139, 126, 0.25);
+  border-radius: 16px;
+  padding: 24px;
+  box-sizing: border-box;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.inicio__card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 5px;
+  background-color: var(--color-primary);
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+}
+
+.inicio__plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.inicio__plan-titulo {
+  font-family: var(--font-coolvetica) !important;
+  font-size: 1.8rem;
+  color: var(--color-primary);
+  margin: 0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.inicio__badge {
+  background: rgba(0, 255, 0, 0.12);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  font-family: var(--font-coolvetica) !important;
+  font-size: 0.85rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Filas */
+.inicio__fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+}
+
+.inicio__etiqueta {
+  color: var(--color-subtext);
+}
+
+.inicio__valor {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* Botón CTA */
+.inicio__boton {
+  margin-top: 24px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--color-primary);
+  color: var(--bg-main);
+  border: none;
+  border-radius: 10px;
+  padding: 14px 20px;
+  font-family: var(--font-coolvetica) !important;
+  font-size: 1.2rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.inicio__boton:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.inicio__boton:active {
+  transform: translateY(0);
+}
+
+/* Mensajes de Estado */
+.inicio__mensaje {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin-top: 12px;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.inicio__mensaje--cargando {
+  background: var(--bg-surface);
+  color: var(--color-subtext);
+  border: 1px solid rgba(110, 139, 126, 0.2);
+}
+
+.inicio__mensaje--error {
+  background: var(--color-error-bg);
+  color: #ff9999;
+  border: 1px solid var(--color-error);
+}

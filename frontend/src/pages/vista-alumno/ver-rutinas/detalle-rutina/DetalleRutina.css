@@ -1,0 +1,304 @@
+/* DetalleRutina.css */
+.detalle-rutina {
+  min-height: 100vh;
+  background-color: var(--bg-main, #121212);
+  color: var(--color-text, #ffffff);
+  padding: 30px 20px 60px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.detalle-rutina__container {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.detalle-rutina__icono-pantalla {
+  width: 32px;
+  height: 32px;
+  color: var(--color-primary, #00ff00);
+}
+
+/* Alerta de sesión iniciada */
+.detalle-rutina__alerta-inicio {
+  width: 100%;
+  background: rgba(0, 255, 0, 0.1);
+  border: 1px solid var(--color-primary, #00ff00);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.detalle-rutina__alerta-titulo {
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  color: var(--color-primary, #00ff00);
+  margin: 0 0 4px 0;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+}
+
+.detalle-rutina__alerta-texto {
+  font-family: var(--font-body, system-ui, sans-serif);
+  color: var(--color-text, #ffffff);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* Contenido de secciones */
+.detalle-rutina__contenido {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Card genérica de sección */
+.detalle-rutina__seccion-card {
+  position: relative;
+  width: 100%;
+  background: var(--bg-surface, #1e1e1e);
+  border: 1px solid var(--color-border, rgba(110, 139, 126, 0.25));
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-sizing: border-box;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+.detalle-rutina__seccion-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-primary, #00ff00);
+  margin-bottom: 12px;
+}
+
+.detalle-rutina__seccion-titulo {
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  font-size: 1.25rem;
+  color: var(--color-text, #ffffff);
+  margin: 0;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.detalle-rutina__seccion-titulo--categoria {
+  color: var(--color-primary, #00ff00);
+  margin-bottom: 14px;
+  font-size: 1.3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+}
+
+.detalle-rutina__seccion-descripcion {
+  font-family: var(--font-body, system-ui, sans-serif);
+  color: var(--color-subtext, #6e8b7e);
+  font-size: 0.88rem;
+  margin: 0 0 14px 0;
+  line-height: 1.4;
+}
+
+/* Pausas */
+.detalle-rutina__pausas-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.detalle-rutina__pausa-item {
+  background: #242424;
+  border: 1px solid var(--color-border, rgba(110, 139, 126, 0.25));
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detalle-rutina__pausa-label {
+  font-family: var(--font-body, system-ui, sans-serif);
+  color: var(--color-subtext, #6e8b7e);
+  font-size: 0.8rem;
+}
+
+.detalle-rutina__pausa-valor {
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  color: var(--color-primary, #00ff00);
+  font-size: 1.3rem;
+  letter-spacing: 0.5px;
+}
+
+/* Progresiones */
+.detalle-rutina__progresiones-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.detalle-rutina__progresion-card {
+  background: #242424;
+  border: 1px solid var(--color-border, rgba(110, 139, 126, 0.25));
+  border-radius: 10px;
+  padding: 10px 6px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detalle-rutina__progresion-semana {
+  font-family: var(--font-body, system-ui, sans-serif);
+  color: var(--color-subtext, #6e8b7e);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.detalle-rutina__progresion-series {
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  color: var(--color-text, #ffffff);
+  font-size: 1.15rem;
+}
+
+.detalle-rutina__progresion-rir {
+  font-family: var(--font-body, system-ui, sans-serif);
+  color: var(--color-primary, #00ff00);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Lista de ejercicios */
+.detalle-rutina__ejercicios-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.detalle-rutina__ejercicio-item {
+  background: #242424;
+  border-left: 3px solid var(--color-primary, #00ff00);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+.detalle-rutina__ejercicio-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.detalle-rutina__ejercicio-nombre {
+  font-family: var(--font-body, system-ui, sans-serif);
+  color: var(--color-text, #ffffff);
+  font-size: 0.98rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.detalle-rutina__ejercicio-tag {
+  background: rgba(0, 255, 0, 0.12);
+  color: var(--color-primary, #00ff00);
+  border: 1px solid var(--color-primary, #00ff00);
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.detalle-rutina__ejercicio-tag--peso {
+  background: rgba(110, 139, 126, 0.2);
+  color: #c7ded3;
+  border-color: rgba(110, 139, 126, 0.4);
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.detalle-rutina__ejercicio-observacion {
+  font-family: var(--font-body, system-ui, sans-serif);
+  color: var(--color-subtext, #6e8b7e);
+  font-size: 0.85rem;
+  margin: 8px 0 0 0;
+  line-height: 1.35;
+}
+
+.detalle-rutina__ejercicio-observacion strong {
+  color: #9cbdb0;
+}
+
+/* Estiramiento y Calentamiento */
+.detalle-rutina__bloque-texto,
+.detalle-rutina__estiramiento-texto {
+  font-family: var(--font-body, system-ui, sans-serif);
+  color: var(--color-text, #ffffff);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-line;
+  letter-spacing: 0.3px;
+}
+
+/* Botones de acción al final */
+.detalle-rutina__acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.detalle-rutina__boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 20px;
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  font-size: 1.15rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  width: 100%;
+}
+
+.detalle-rutina__boton--iniciar {
+  background: var(--color-primary, #00ff00);
+  color: var(--bg-main, #121212);
+}
+
+.detalle-rutina__boton--iniciar:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.detalle-rutina__boton--cancelar {
+  background: transparent;
+  color: var(--color-text, #ffffff);
+  border: 1px solid var(--color-border, rgba(110, 139, 126, 0.25));
+}
+
+.detalle-rutina__boton--cancelar:hover {
+  border-color: var(--color-primary, #00ff00);
+  color: var(--color-primary, #00ff00);
+}
+
+.detalle-rutina__boton--finalizar {
+  background: var(--color-error, #8b0000);
+  color: #ffffff;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  width: auto;
+}
+

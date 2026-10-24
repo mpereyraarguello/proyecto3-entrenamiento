@@ -1,0 +1,124 @@
+/* componentsComunes.css */
+.comunes__top-nav {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 16px;
+}
+
+.comunes__boton-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--color-subtext, #6e8b7e);
+  border: 1px solid var(--color-border, rgba(110, 139, 126, 0.25));
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.comunes__boton-volver:hover {
+  color: var(--color-primary, #00ff00);
+  border-color: var(--color-primary, #00ff00);
+  background: rgba(0, 255, 0, 0.05);
+}
+
+.comunes__header {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 26px;
+}
+
+.comunes__encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.comunes__icono-wrapper {
+  color: var(--color-primary, #00ff00);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.comunes__titulo {
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  font-weight: 400;
+  font-size: 2.1rem;
+  letter-spacing: 0.8px;
+  margin: 0;
+  color: var(--color-text, #ffffff);
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.comunes__subtitulo {
+  font-family: var(--font-body, system-ui, sans-serif);
+  color: var(--color-subtext, #6e8b7e);
+  font-size: 0.95rem;
+  margin: 8px 0 0;
+  line-height: 1.45;
+}
+
+.comunes__badge-wrapper {
+  margin-top: 12px;
+}
+
+.comunes__badge {
+  background: rgba(0, 255, 0, 0.12);
+  color: var(--color-primary, #00ff00);
+  border: 1px solid var(--color-primary, #00ff00);
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  font-size: 0.85rem;
+  padding: 4px 14px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  display: inline-block;
+}
+
+/* Mensajes comunes */
+.comunes__mensaje {
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.95rem;
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin-top: 16px;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.comunes__mensaje--cargando {
+  background: var(--bg-surface, #1e1e1e);
+  color: var(--color-subtext, #6e8b7e);
+  border: 1px solid var(--color-border, rgba(110, 139, 126, 0.25));
+}
+
+.comunes__mensaje--error {
+  background: var(--color-error-bg, rgba(139, 0, 0, 0.15));
+  color: #ff9999;
+  border: 1px solid var(--color-error, #8b0000);
+}
+
+.comunes__boton-error {
+  background: var(--color-error, #8b0000);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  margin-top: 10px;
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  font-size: 1rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+

@@ -1,0 +1,185 @@
+/* ConsultarRutinas.css */
+.ver-rutinas {
+  min-height: 100vh;
+  background-color: var(--bg-main, #121212);
+  color: var(--color-text, #ffffff);
+  padding: 30px 20px 50px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ver-rutinas__container {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ver-rutinas__icono-pantalla {
+  width: 34px;
+  height: 34px;
+  color: var(--color-primary, #00ff00);
+}
+
+/* Lista de Cards */
+.ver-rutinas__lista {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Card de Rutina */
+.ver-rutinas__card {
+  position: relative;
+  width: 100%;
+  background: var(--bg-surface, #1e1e1e);
+  border: 1px solid var(--color-border, rgba(110, 139, 126, 0.25));
+  border-radius: 16px;
+  padding: 22px 20px 20px 24px;
+  box-sizing: border-box;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.ver-rutinas__card:hover {
+  transform: translateY(-2px);
+  background: #252525;
+  border-color: rgba(0, 255, 0, 0.4);
+}
+
+/* Franja verde lateral */
+.ver-rutinas__card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 5px;
+  background-color: var(--color-primary, #00ff00);
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+}
+
+.ver-rutinas__card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ver-rutinas__card-titulo {
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  font-size: 1.6rem;
+  color: var(--color-primary, #00ff00);
+  margin: 0;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.ver-rutinas__badge-ejercicios {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(110, 139, 126, 0.15);
+  color: #a3c2b2;
+  border: 1px solid rgba(110, 139, 126, 0.3);
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.ver-rutinas__card-descripcion {
+  font-family: var(--font-body, system-ui, sans-serif);
+  color: var(--color-subtext, #6e8b7e);
+  font-size: 0.9rem;
+  margin: 0 0 18px 0;
+  line-height: 1.4;
+}
+
+.ver-rutinas__card-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Botones */
+.ver-rutinas__boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  font-size: 1.1rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.ver-rutinas__boton--iniciar {
+  background: var(--color-primary, #00ff00);
+  color: var(--bg-main, #121212);
+  width: 100%;
+}
+
+.ver-rutinas__boton--iniciar:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.ver-rutinas__boton--iniciar:active {
+  transform: translateY(0);
+}
+
+.ver-rutinas__boton--volver {
+  background: transparent;
+  color: var(--color-text, #ffffff);
+  border: 1px solid var(--color-border, rgba(110, 139, 126, 0.25));
+  margin-top: 18px;
+}
+
+.ver-rutinas__boton--volver:hover {
+  border-color: var(--color-primary, #00ff00);
+  color: var(--color-primary, #00ff00);
+}
+
+/* Sección sin plan activo */
+.ver-rutinas__sin-plan {
+  width: 100%;
+  background: var(--bg-surface, #1e1e1e);
+  border: 1px solid var(--color-border, rgba(110, 139, 126, 0.25));
+  border-radius: 16px;
+  padding: 30px 22px;
+  text-align: center;
+  box-sizing: border-box;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.ver-rutinas__sin-plan-titulo {
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  color: var(--color-text, #ffffff);
+  font-size: 1.5rem;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+}
+
+.ver-rutinas__sin-plan-texto {
+  font-family: var(--font-body, system-ui, sans-serif);
+  color: var(--color-subtext, #6e8b7e);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
