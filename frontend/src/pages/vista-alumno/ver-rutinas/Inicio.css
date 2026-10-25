@@ -183,6 +183,24 @@ header {
   transform: translateY(0);
 }
 
+.inicio__boton--historial {
+  margin-top: 12px;
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid rgba(110, 139, 126, 0.35);
+  box-shadow: none;
+}
+
+.inicio__boton--historial:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: rgba(0, 255, 0, 0.05);
+}
+
+.inicio__boton--historial:active {
+  transform: scale(0.98);
+}
+
 /* Mensajes de Estado */
 .inicio__mensaje {
   font-family: var(--font-body);

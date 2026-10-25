@@ -302,3 +302,56 @@
   width: auto;
 }
 
+/* ── Mobile Responsive Media Queries ── */
+@media (max-width: 480px) {
+  .detalle-rutina {
+    padding: 16px 12px 80px;
+  }
+
+  .detalle-rutina__seccion-card {
+    padding: 14px 14px;
+    border-radius: 12px;
+  }
+
+  .detalle-rutina__seccion-titulo {
+    font-size: 1.15rem;
+  }
+
+  .detalle-rutina__seccion-titulo--categoria {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+
+  .detalle-rutina__progresiones-grid {
+    gap: 6px;
+  }
+
+  .detalle-rutina__progresion-card {
+    padding: 8px 4px;
+  }
+
+  .detalle-rutina__progresion-series {
+    font-size: 1rem;
+  }
+
+  .detalle-rutina__boton {
+    min-height: 50px;
+    padding: 13px 18px;
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .detalle-rutina__progresiones-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .detalle-rutina__pausas-grid {
+    gap: 8px;
+  }
+
+  .detalle-rutina__pausa-item {
+    padding: 10px 10px;
+  }
+}
+

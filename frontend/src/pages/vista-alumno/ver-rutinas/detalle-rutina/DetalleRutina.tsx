@@ -5,7 +5,6 @@ import BotonVolver from "../components-comunes/BotonVolver";
 import EncabezadoPantalla from "../components-comunes/EncabezadoPantalla";
 import MensajeEstado from "../components-comunes/MensajeEstado";
 import type { RutinaDetalle } from "../types/rutinas.types";
-import AlertaSesion from "./components/AlertaSesion";
 import PausasRecomendadas from "./components/PausasRecomendadas";
 import ProgresionSemanal from "./components/ProgresionSemanal";
 import SeccionCalentamiento from "./components/SeccionCalentamiento";
@@ -54,7 +53,6 @@ export default function DetalleRutina() {
   const [rutina, setRutina] = useState<RutinaDetalle | null>(null);
   const [cargando, setCargando] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
-  const [sesionIniciada, setSesionIniciada] = useState<boolean>(false);
 
   useEffect(() => {
     if (!idRutina) return;
@@ -79,11 +77,7 @@ export default function DetalleRutina() {
   };
 
   const iniciarSesion = () => {
-    setSesionIniciada(true);
-  };
-
-  const finalizarSesion = () => {
-    setSesionIniciada(false);
+    navigate(`/planes/${planId || 1}/rutinas/${idRutina}/sesion`);
   };
 
   return (
@@ -119,12 +113,7 @@ export default function DetalleRutina() {
           />
         )}
 
-        {sesionIniciada && (
-          <AlertaSesion
-            numeroRutina={rutina?.numero}
-            onFinalizar={finalizarSesion}
-          />
-        )}
+
 
         {!cargando && !error && rutina && (
           <div className="detalle-rutina__contenido">
