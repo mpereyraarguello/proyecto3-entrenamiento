@@ -117,7 +117,7 @@ export default function GraficoEvolucionPesos({
     <div className="estadisticas__grafico-contenedor">
       <div className="estadisticas__grafico-header">
         <h3 className="estadisticas__historial-titulo">
-          Evolución de cargas por sesión
+          Evolución de pesos por sesión
         </h3>
         <span className="estadisticas__grafico-sub">
           {registros.length} sesiones registradas
