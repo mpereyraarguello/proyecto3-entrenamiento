@@ -5,12 +5,13 @@ import { ExerciseEdit } from './pages/vista-profesor/gestionar-ejercicio/editar-
 import { ExerciseCardPreview } from './pages/vista-profesor/gestionar-ejercicio/crear-ejercicio/components/ExerciseCardPreview'
 import { ExerciseList } from './pages/vista-profesor/gestionar-ejercicio/components/ExerciseList'
 import { ExerciseSearch } from './pages/vista-profesor/gestionar-ejercicio/consultar-ejercicio/components/ExerciseSearch'
+import { DashboardProfesorPage } from './pages/vista-profesor/dashboard/dashboardProfesor'
 import { CheckIcon, DumbbellIcon, PlusIcon, SearchIcon, EditIcon } from './pages/vista-profesor/gestionar-ejercicio/components/Icons'
 import { INITIAL_EXERCISES } from './data/initialExercises'
 
 export function App() {
   // Pestaña activa: 'consulta' | 'registro' | 'edicion'
-  const [activeTab, setActiveTab] = useState<'consulta' | 'registro' | 'edicion'>('consulta')
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'consulta' | 'registro' | 'edicion'>('dashboard')
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null)
 
   // Estado de ejercicios persistido en localStorage con iniciales ricos para consultas
@@ -153,6 +154,14 @@ export function App() {
           <nav className="header-nav">
             <button
               type="button"
+              className={`nav-tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
+              onClick={() => setActiveTab('dashboard')}
+            >
+              Dashboard
+            </button>
+
+            <button
+              type="button"
               className={`nav-tab-btn ${activeTab === 'consulta' ? 'active' : ''}`}
               onClick={() => setActiveTab('consulta')}
             >
@@ -188,6 +197,13 @@ export function App() {
           </nav>
         </div>
       </header>
+
+      {activeTab === 'dashboard' && (
+        <DashboardProfesorPage
+          onNavigateToRegister={() => handleNavigateToRegister()}
+          onNavigateToConsulta={() => setActiveTab('consulta')}
+        />
+      )}
 
       {/* VISTA 1: CONSULTA Y BÚSQUEDA DE EJERCICIOS */}
       {activeTab === 'consulta' && (
