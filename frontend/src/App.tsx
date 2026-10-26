@@ -7,21 +7,22 @@ import { ExerciseList } from './pages/vista-profesor/gestionar-ejercicio/compone
 import { ExerciseSearch } from './pages/vista-profesor/gestionar-ejercicio/consultar-ejercicio/components/ExerciseSearch'
 import { CheckIcon, DumbbellIcon, PlusIcon, SearchIcon, EditIcon } from './pages/vista-profesor/gestionar-ejercicio/components/Icons'
 import { INITIAL_EXERCISES } from './data/initialExercises'
+import { CrearAlumnoPage } from './pages/vista-profesor/gestionar-alumno/crear-alumno/CrearAlumnoPage'
+import { ModificarAlumnoPage } from './pages/vista-profesor/gestionar-alumno/modificar-alumno/ModificarAlumnoPage'
+import { UserPlusIcon, UserEditIcon } from './pages/vista-profesor/gestionar-alumno/components-comunes/Icons'
+
+type TabId = 'consulta' | 'registro' | 'edicion' | 'crear-alumno' | 'modificar-alumno'
 
 export function App() {
-  // Pestaña activa: 'consulta' | 'registro' | 'edicion'
-  const [activeTab, setActiveTab] = useState<'consulta' | 'registro' | 'edicion'>('consulta')
+  const [activeTab, setActiveTab] = useState<TabId>('consulta')
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null)
 
-  // Estado de ejercicios persistido en localStorage con iniciales ricos para consultas
   const [exercises, setExercises] = useState<Exercise[]>(() => {
     try {
       const saved = localStorage.getItem('gym_exercises_data')
       if (saved) {
         const parsed = JSON.parse(saved)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed
-        }
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
       }
     } catch {
       // Fallback
@@ -29,7 +30,6 @@ export function App() {
     return INITIAL_EXERCISES
   })
 
-  // Estado del formulario de registro nuevo (separado completamente de la edición)
   const [formData, setFormData] = useState({
     nombre: '',
     observacion: '',
@@ -50,19 +50,13 @@ export function App() {
 
   const showToast = (msg: string) => {
     setToastMessage(msg)
-    setTimeout(() => {
-      setToastMessage(null)
-    }, 3500)
+    setTimeout(() => setToastMessage(null), 3500)
   }
 
   const handleFormChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
+    setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  // Guardar un NUEVO ejercicio
   const handleSaveExercise = (newExercise: Exercise) => {
     setExercises((prev) => [newExercise, ...prev])
     showToast(`¡Ejercicio "${newExercise.nombre}" registrado exitosamente!`)
@@ -70,7 +64,6 @@ export function App() {
     setActiveTab('consulta')
   }
 
-  // Actualizar un ejercicio EXISTENTE (Separado de registrar)
   const handleUpdateExercise = (updatedExercise: Exercise) => {
     setExercises((prev) =>
       prev.map((ex) => (ex.id === updatedExercise.id ? updatedExercise : ex))
@@ -80,14 +73,12 @@ export function App() {
     setActiveTab('consulta')
   }
 
-  // Iniciar flujo de edición separado
   const handleStartEdit = (exercise: Exercise) => {
     setEditingExercise(exercise)
     setActiveTab('edicion')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // Cancelar flujo de edición
   const handleCancelEdit = () => {
     setEditingExercise(null)
     setActiveTab('consulta')
@@ -100,9 +91,7 @@ export function App() {
       setEditingExercise(null)
       setActiveTab('consulta')
     }
-    if (toDelete) {
-      showToast(`Ejercicio "${toDelete.nombre}" eliminado.`)
-    }
+    if (toDelete) showToast(`Ejercicio "${toDelete.nombre}" eliminado.`)
   }
 
   const handleResetRegisterForm = () => {
@@ -116,30 +105,17 @@ export function App() {
   }
 
   const handleNavigateToRegister = (initialName?: string) => {
-    if (initialName && initialName.trim()) {
-      setFormData((prev) => ({
-        ...prev,
-        nombre: initialName.trim(),
-      }))
+    if (initialName?.trim()) {
+      setFormData((prev) => ({ ...prev, nombre: initialName.trim() }))
     }
     setEditingExercise(null)
     setActiveTab('registro')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // Paleta oficial de colores para mostrar en la barra superior
-  const colorPalette = [
-    { hex: '#121212', label: 'Fondo' },
-    { hex: '#1E1E1E', label: 'Gris Oscuro' },
-    { hex: '#00FF00', label: 'Verde Neón' },
-    { hex: '#FFFFFF', label: 'Blanco' },
-    { hex: '#6E8B7E', label: 'Gris Verdoso' },
-    { hex: '#8B0000', label: 'Rojo Bordó' },
-  ]
-
   return (
     <div className="app-container">
-      {/* Barra de Navegación / Encabezado */}
+      {/* Header */}
       <header className="app-header">
         <div className="header-content">
           <div className="header-brand">
@@ -149,7 +125,6 @@ export function App() {
             </h1>
           </div>
 
-          {/* Pestañas de navegación entre Registro, Consulta y Edición */}
           <nav className="header-nav">
             <button
               type="button"
@@ -163,13 +138,28 @@ export function App() {
             <button
               type="button"
               className={`nav-tab-btn ${activeTab === 'registro' ? 'active' : ''}`}
-              onClick={() => {
-                setEditingExercise(null)
-                setActiveTab('registro')
-              }}
+              onClick={() => { setEditingExercise(null); setActiveTab('registro') }}
             >
               <PlusIcon size={18} />
               Registrar Ejercicio
+            </button>
+
+            <button
+              type="button"
+              className={`nav-tab-btn ${activeTab === 'crear-alumno' ? 'active' : ''}`}
+              onClick={() => setActiveTab('crear-alumno')}
+            >
+              <UserPlusIcon size={18} />
+              Registrar Alumno
+            </button>
+
+            <button
+              type="button"
+              className={`nav-tab-btn ${activeTab === 'modificar-alumno' ? 'active' : ''}`}
+              onClick={() => setActiveTab('modificar-alumno')}
+            >
+              <UserEditIcon size={18} />
+              Modificar Alumno
             </button>
 
             {editingExercise && (
@@ -177,9 +167,7 @@ export function App() {
                 type="button"
                 className={`nav-tab-btn ${activeTab === 'edicion' ? 'active' : ''}`}
                 onClick={() => setActiveTab('edicion')}
-                style={{
-                  borderColor: 'var(--neon-green)',
-                }}
+                style={{ borderColor: 'var(--neon-green)' }}
               >
                 <EditIcon size={16} />
                 Editar ({editingExercise.nombre.slice(0, 15)}...)
@@ -189,7 +177,7 @@ export function App() {
         </div>
       </header>
 
-      {/* VISTA 1: CONSULTA Y BÚSQUEDA DE EJERCICIOS */}
+      {/* VISTA: Consultar Ejercicios */}
       {activeTab === 'consulta' && (
         <ExerciseSearch
           exercises={exercises}
@@ -199,7 +187,7 @@ export function App() {
         />
       )}
 
-      {/* VISTA 2: PANTALLA EXCLUSIVA DE EDICIÓN (SEPARADA DE REGISTRAR) */}
+      {/* VISTA: Editar Ejercicio */}
       {activeTab === 'edicion' && editingExercise && (
         <ExerciseEdit
           exercise={editingExercise}
@@ -209,7 +197,7 @@ export function App() {
         />
       )}
 
-      {/* VISTA 3: REGISTRO DE NUEVOS EJERCICIOS */}
+      {/* VISTA: Registrar Ejercicio */}
       {activeTab === 'registro' && (
         <>
           <main className="main-layout">
@@ -221,7 +209,6 @@ export function App() {
                 onReset={handleResetRegisterForm}
               />
             </div>
-
             <div className="preview-column">
               <ExerciseCardPreview
                 nombre={formData.nombre}
@@ -230,7 +217,6 @@ export function App() {
                 grupoMuscular={formData.grupoMuscular}
                 tipoEjercicio={formData.tipoEjercicio}
               />
-
               <div
                 style={{
                   backgroundColor: 'var(--bg-surface)',
@@ -244,15 +230,10 @@ export function App() {
               >
                 <div
                   style={{
-                    width: '45px',
-                    height: '45px',
-                    borderRadius: '10px',
-                    background: 'rgba(0, 255, 0, 0.12)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'var(--neon-green)',
-                    flexShrink: 0,
+                    width: '45px', height: '45px', borderRadius: '10px',
+                    background: 'rgba(0, 255, 0, 0.12)', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    color: 'var(--neon-green)', flexShrink: 0,
                   }}
                 >
                   <DumbbellIcon size={24} />
@@ -268,8 +249,6 @@ export function App() {
               </div>
             </div>
           </main>
-
-          {/* Catálogo rápido de ejercicios en la vista de registro */}
           <ExerciseList
             exercises={exercises}
             onDeleteExercise={handleDeleteExercise}
@@ -278,19 +257,21 @@ export function App() {
         </>
       )}
 
-      {/* Notificación Toast Flotante */}
+      {/* Cree las paginas mejor y las exporto asi no se hace tanto acoplamiento de codigo en app.tsx*/}
+      {/* VISTA: Registrar Alumno */}
+      {activeTab === 'crear-alumno' && <CrearAlumnoPage />}
+
+      {/* VISTA: Modificar Alumno */}
+      {activeTab === 'modificar-alumno' && <ModificarAlumnoPage />}
+
+      {/* Toast */}
       {toastMessage && (
         <div className="toast-notification">
           <div
             style={{
-              width: '24px',
-              height: '24px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--neon-green)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#000000',
+              width: '24px', height: '24px', borderRadius: '50%',
+              backgroundColor: 'var(--neon-green)', display: 'flex',
+              alignItems: 'center', justifyContent: 'center', color: '#000000',
             }}
           >
             <CheckIcon size={16} />

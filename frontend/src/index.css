@@ -1373,3 +1373,215 @@ h1, h2, h3, h4, .font-colvetica {
     opacity: 1;
   }
 }
+
+
+/* =========================================================================
+   MÓDULO: REGISTRAR ALUMNO
+   ========================================================================= */
+
+/* Título de sección interna dentro del form */
+.registrar-alumno-section-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--neon-green);
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 0.4rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.registrar-alumno-section-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: -0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* Fila de dos columnas para campos del form */
+.registrar-alumno-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 560px) {
+  .registrar-alumno-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Wrapper del campo contraseña con botón de ver/ocultar */
+.registrar-alumno-password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.registrar-alumno-password-wrapper .field-input {
+  padding-right: 2.8rem;
+}
+
+.registrar-alumno-toggle-pass {
+  position: absolute;
+  right: 0.85rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  line-height: 1;
+  transition: opacity 0.15s;
+}
+
+.registrar-alumno-toggle-pass:hover {
+  opacity: 0.75;
+}
+
+/* Grilla de chips de objetivos */
+.registrar-alumno-objetivos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0.6rem;
+}
+
+@media (max-width: 480px) {
+  .registrar-alumno-objetivos-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Chip de objetivo */
+.registrar-alumno-objetivo-chip {
+  background-color: var(--bg-surface-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  font-family: inherit;
+  text-align: left;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.registrar-alumno-objetivo-chip:hover {
+  border-color: var(--text-muted);
+  background-color: var(--bg-surface-elevated);
+}
+
+.registrar-alumno-objetivo-chip.active {
+  border-color: var(--neon-green);
+  background-color: var(--neon-green-subtle);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Círculo indicador de check dentro del chip */
+.registrar-alumno-objetivo-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-muted);
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.registrar-alumno-objetivo-chip.active .registrar-alumno-objetivo-check {
+  background-color: var(--neon-green);
+  border-color: var(--neon-green);
+}
+
+/* Contador de objetivos seleccionados */
+.registrar-alumno-objetivos-counter {
+  margin-top: 0.6rem;
+  font-size: 0.82rem;
+  color: var(--neon-green);
+  font-weight: 600;
+}
+
+
+/* =========================================================================
+   MÓDULO: MODIFICAR ALUMNO
+   ========================================================================= */
+
+/* Badge identificador del alumno */
+.modificar-alumno-id-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: var(--bg-surface-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.modificar-alumno-id-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.modificar-alumno-id-value {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--neon-green);
+  background: rgba(0, 255, 0, 0.1);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 6px;
+  padding: 0.1rem 0.55rem;
+}
+
+.modificar-alumno-id-fecha {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+/* Botón secundario (Restaurar) */
+.btn-secondary {
+  flex: 1;
+  background-color: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-muted);
+  border-radius: 10px;
+  padding: 0.9rem 1.1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.btn-secondary:disabled,
+.btn-primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
