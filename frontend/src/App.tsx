@@ -6,12 +6,13 @@ import { ExerciseCardPreview } from './pages/vista-profesor/gestionar-ejercicio/
 import { ExerciseList } from './pages/vista-profesor/gestionar-ejercicio/components/ExerciseList'
 import { ExerciseSearch } from './pages/vista-profesor/gestionar-ejercicio/consultar-ejercicio/components/ExerciseSearch'
 import { DashboardProfesorPage } from './pages/vista-profesor/dashboard/dashboardProfesor'
+import { CrearPlanEntrenamientoPage } from './pages/vista-profesor/gestionar-plan-entrenamiento/crear-plan-entrenamiento/CrearPlanEntrenamientoPage'
 import { CheckIcon, DumbbellIcon, PlusIcon, SearchIcon, EditIcon } from './pages/vista-profesor/gestionar-ejercicio/components/Icons'
 import { INITIAL_EXERCISES } from './data/initialExercises'
 
 export function App() {
   // Pestaña activa: 'consulta' | 'registro' | 'edicion'
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'consulta' | 'registro' | 'edicion'>('dashboard')
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'consulta' | 'registro' | 'edicion'| 'crear-plan'>('dashboard')
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null)
 
   // Estado de ejercicios persistido en localStorage con iniciales ricos para consultas
@@ -202,7 +203,11 @@ export function App() {
         <DashboardProfesorPage
           onNavigateToRegister={() => handleNavigateToRegister()}
           onNavigateToConsulta={() => setActiveTab('consulta')}
+          onNavigateToCrearPlan={() => setActiveTab('crear-plan')}
         />
+      )}
+      {activeTab === 'crear-plan' && (
+        <CrearPlanEntrenamientoPage />
       )}
 
       {/* VISTA 1: CONSULTA Y BÚSQUEDA DE EJERCICIOS */}

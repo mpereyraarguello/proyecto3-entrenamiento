@@ -7,6 +7,7 @@ import { dashboardApi } from './services/dashboardApi'
 
 interface DashboardProfesorProps {
   onNavigateToRegister: () => void
+  onNavigateToCrearPlan: () => void
   onNavigateToConsulta: () => void
 }
 
@@ -35,6 +36,7 @@ const SparklesIcon: React.FC<{ size?: number; color?: string }> = ({ size = 20, 
 
 export const DashboardProfesorPage: React.FC<DashboardProfesorProps> = ({
   onNavigateToRegister,
+  onNavigateToCrearPlan,
   onNavigateToConsulta,
 }) => {
   const [alumnos, setAlumnos] = useState<AlumnoData[]>([])
@@ -138,7 +140,7 @@ export const DashboardProfesorPage: React.FC<DashboardProfesorProps> = ({
       {/* Acciones Rápidas asociadas a las Props */}
       <QuickActions
         onRegistrarAlumno={onNavigateToRegister}
-        onCrearPlan={() => console.log('Crear plan')}
+        onCrearPlan={onNavigateToCrearPlan}
         onVerEjercicios={onNavigateToConsulta}
       />
 
