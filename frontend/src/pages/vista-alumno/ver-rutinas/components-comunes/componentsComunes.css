@@ -30,15 +30,16 @@
 .comunes__header {
   text-align: center;
   width: 100%;
-  margin-bottom: 26px;
+  margin-bottom: 22px;
 }
 
 .comunes__encabezado {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
 }
 
 .comunes__icono-wrapper {
@@ -46,29 +47,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .comunes__titulo {
   font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
   font-weight: 400;
-  font-size: 2.1rem;
+  font-size: clamp(1.35rem, 5.5vw, 2.1rem);
   letter-spacing: 0.8px;
   margin: 0;
   color: var(--color-text, #ffffff);
   text-transform: uppercase;
-  line-height: 1.1;
+  line-height: 1.15;
+  word-break: break-word;
 }
 
 .comunes__subtitulo {
   font-family: var(--font-body, system-ui, sans-serif);
   color: var(--color-subtext, #6e8b7e);
-  font-size: 0.95rem;
-  margin: 8px 0 0;
-  line-height: 1.45;
+  font-size: clamp(0.82rem, 3.2vw, 0.95rem);
+  margin: 6px 0 0;
+  line-height: 1.4;
+  padding: 0 4px;
 }
 
 .comunes__badge-wrapper {
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 .comunes__badge {
@@ -76,12 +80,29 @@
   color: var(--color-primary, #00ff00);
   border: 1px solid var(--color-primary, #00ff00);
   font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
-  font-size: 0.85rem;
-  padding: 4px 14px;
+  font-size: clamp(0.75rem, 2.8vw, 0.85rem);
+  padding: 4px 12px;
   border-radius: 20px;
   text-transform: uppercase;
   letter-spacing: 0.6px;
   display: inline-block;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+  .comunes__top-nav {
+    margin-bottom: 12px;
+  }
+
+  .comunes__boton-volver {
+    padding: 7px 12px;
+    font-size: 0.85rem;
+  }
+
+  .comunes__header {
+    margin-bottom: 18px;
+  }
 }
 
 /* Mensajes comunes */
