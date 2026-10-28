@@ -411,13 +411,16 @@ export default function SesionEntrenamiento() {
     const fechaFormateada = `${ahora.toLocaleDateString("es-AR")} - ${ahora.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })} hs`;
 
     // Armar lista de ejercicios completa para el historial:
-    // Calentamiento (obligatorio, tildado por bloque) + Core + Fuerza + Cardio (opcional) + Estiramiento (opcional)
-    const calentamientoHistorial = itemsCalentamiento.map((item) => ({
-      ejercicioId: item.id,
-      nombre: item.nombre,
-      categoria: "calentamiento",
-      completado: Boolean(calentamientoCompletado),
-    }));
+    // Calentamiento (obligatorio, conjunto único que siempre se registra como Realizado) + Core + Fuerza + Cardio (opcional) + Estiramiento (opcional)
+    const calentamientoHistorial = [
+      {
+        ejercicioId: "cal-conjunto",
+        nombre: "Calentamiento y Movilidad Articular",
+        categoria: "calentamiento",
+        series: `${itemsCalentamiento.length} ejercicios de preparación articular`,
+        completado: true,
+      },
+    ];
 
     const coreHistorial = ejerciciosCore.map((ej) => ({
       ejercicioId: ej.id,

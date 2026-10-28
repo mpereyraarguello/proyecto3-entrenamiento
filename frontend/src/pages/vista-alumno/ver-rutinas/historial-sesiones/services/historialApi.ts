@@ -3,7 +3,7 @@
 
 import type { SesionHistorial } from "../types/historial.types";
 
-const STORAGE_KEY = "gym_historial_sesiones_v4";
+const STORAGE_KEY = "gym_historial_sesiones_v6";
 
 const HISTORIAL_INICIAL_MOCK: SesionHistorial[] = [
   {
@@ -15,31 +15,14 @@ const HISTORIAL_INICIAL_MOCK: SesionHistorial[] = [
     rutinaNumero: 1,
     rutinaNombre: "Rutina 1",
     duracionEstimada: "45 min",
-    totalEjercicios: 12,
+    totalEjercicios: 8,
     ejerciciosCompletados: [
       {
-        ejercicioId: "cal-1",
-        nombre: "MOV. TÓRAX CUADRUP. 2X10",
+        ejercicioId: "cal-conjunto-1",
+        nombre: "Calentamiento y Movilidad Articular",
         categoria: "calentamiento",
+        series: "4 ejercicios de preparación articular",
         completado: true,
-      },
-      {
-        ejercicioId: "cal-2",
-        nombre: "ROTAC. INT. EXT. CAD. 2X10",
-        categoria: "calentamiento",
-        completado: true,
-      },
-      {
-        ejercicioId: "cal-3",
-        nombre: "DORSIFLEX TOB. 3X10",
-        categoria: "calentamiento",
-        completado: true,
-      },
-      {
-        ejercicioId: "cal-4",
-        nombre: "PUENTE FRONTAL BAJO 15’’",
-        categoria: "calentamiento",
-        completado: false,
       },
       {
         ejercicioId: 101,
@@ -104,13 +87,6 @@ const HISTORIAL_INICIAL_MOCK: SesionHistorial[] = [
         series: "3x12",
         completado: true,
       },
-      {
-        ejercicioId: "est-1",
-        nombre: "Elongación general de grupos musculares",
-        categoria: "estiramiento",
-        series: "10'' por grupo muscular",
-        completado: true,
-      },
     ],
   },
   {
@@ -122,31 +98,14 @@ const HISTORIAL_INICIAL_MOCK: SesionHistorial[] = [
     rutinaNumero: 2,
     rutinaNombre: "Rutina 2",
     duracionEstimada: "50 min",
-    totalEjercicios: 12,
+    totalEjercicios: 9,
     ejerciciosCompletados: [
       {
-        ejercicioId: "cal-1",
-        nombre: "MOV. TÓRAX CUADRUP. 2X10",
+        ejercicioId: "cal-conjunto-2",
+        nombre: "Calentamiento y Movilidad Articular",
         categoria: "calentamiento",
-        completado: false,
-      },
-      {
-        ejercicioId: "cal-2",
-        nombre: "ROTAC. INT. EXT. CAD. 2X10",
-        categoria: "calentamiento",
-        completado: false,
-      },
-      {
-        ejercicioId: "cal-3",
-        nombre: "DORSIFLEX TOB. 3X10",
-        categoria: "calentamiento",
-        completado: false,
-      },
-      {
-        ejercicioId: "cal-4",
-        nombre: "PUENTE FRONTAL BAJO 15’’",
-        categoria: "calentamiento",
-        completado: false,
+        series: "4 ejercicios de preparación articular",
+        completado: true,
       },
       {
         ejercicioId: 103,
