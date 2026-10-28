@@ -10,24 +10,24 @@ export type SeccionSesionTab =
 interface PestanasSesionProps {
   tabActiva: SeccionSesionTab;
   onCambiarTab: (tab: SeccionSesionTab) => void;
-  calentamientoCompletados?: number;
-  calentamientoTotal?: number;
+  calentamientoCompletado: boolean;
   coreCompletados: number;
   coreTotal: number;
   fuerzaCompletados: number;
   fuerzaTotal: number;
+  cardioCompletado?: boolean;
   estiramientoCompletado?: boolean;
 }
 
 export default function PestanasSesion({
   tabActiva,
   onCambiarTab,
-  calentamientoCompletados = 0,
-  calentamientoTotal = 0,
+  calentamientoCompletado,
   coreCompletados,
   coreTotal,
   fuerzaCompletados,
   fuerzaTotal,
+  cardioCompletado = false,
   estiramientoCompletado = false,
 }: PestanasSesionProps) {
   const activeBtnRef = useRef<HTMLButtonElement | null>(null);
@@ -50,13 +50,10 @@ export default function PestanasSesion({
     {
       id: "calentamiento",
       label: "Calentamiento",
-      conteo:
-        calentamientoTotal > 0
-          ? {
-              completados: calentamientoCompletados,
-              total: calentamientoTotal,
-            }
-          : undefined,
+      conteo: {
+        completados: calentamientoCompletado ? 1 : 0,
+        total: 1,
+      },
     },
     {
       id: "core",
@@ -68,7 +65,14 @@ export default function PestanasSesion({
       label: "Fuerza",
       conteo: { completados: fuerzaCompletados, total: fuerzaTotal },
     },
-    { id: "cardio", label: "Cardio" },
+    {
+      id: "cardio",
+      label: "Cardio",
+      conteo: {
+        completados: cardioCompletado ? 1 : 0,
+        total: 1,
+      },
+    },
     {
       id: "estiramiento",
       label: "Estiramiento",

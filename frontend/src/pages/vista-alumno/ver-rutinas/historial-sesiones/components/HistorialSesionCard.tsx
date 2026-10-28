@@ -156,7 +156,8 @@ export default function HistorialSesionCard({
                         <span className="historial__ejercicio-nombre">
                           {ej.nombre}
                         </span>
-                        {!esFuerzaOCore && (
+                        {(categoriaLower === "cardio" ||
+                          categoriaLower === "estiramiento") && (
                           <span className="historial__tag-opcional">
                             Opcional
                           </span>

@@ -15,7 +15,7 @@ import ModalSesionFinalizada from "./components/ModalSesionFinalizada";
 import ProgresionSesion from "./components/ProgresionSesion";
 import PestanasSesion, { type SeccionSesionTab } from "./components/PestanasSesion";
 import SeccionCalentamientoSesion from "./components/SeccionCalentamientoSesion";
-import SeccionCardio from "../detalle-rutina/components/SeccionCardio";
+import SeccionCardioSesion from "./components/SeccionCardioSesion";
 import SeccionEstiramientoSesion from "./components/SeccionEstiramientoSesion";
 import { agregarSesionAlHistorial } from "../historial-sesiones/services/historialApi";
 import "./SesionEntrenamiento.css";
@@ -141,57 +141,61 @@ export default function SesionEntrenamiento() {
   // Construir ejercicios de sesión con datos combinados
   const ejerciciosCore: EjercicioSesion[] = useMemo(() => {
     if (!rutina) return [];
-    return rutina.core.map((ej) => ({
-      ...ej,
-      ultimaSesion: ultimaSesionMap[ej.id]
-        ? { ejercicioId: ej.id, ...ultimaSesionMap[ej.id] }
-        : undefined,
-      registro: registros[ej.id] || {
+    return rutina.core.map((ej) => {
+      const reg = registros[ej.id] || {
         ejercicioId: ej.id,
         peso: "",
         repeticiones: "",
         completado: false,
-      },
-    }));
+      };
+      const completado = Boolean(
+        reg.peso &&
+          reg.peso.trim().length > 0 &&
+          reg.repeticiones &&
+          reg.repeticiones.trim().length > 0
+      );
+      return {
+        ...ej,
+        ultimaSesion: ultimaSesionMap[ej.id]
+          ? { ejercicioId: ej.id, ...ultimaSesionMap[ej.id] }
+          : undefined,
+        registro: {
+          ...reg,
+          completado,
+        },
+      };
+    });
   }, [rutina, registros, ultimaSesionMap]);
 
   const ejerciciosFuerza: EjercicioSesion[] = useMemo(() => {
     if (!rutina) return [];
-    return rutina.fuerza.map((ej) => ({
-      ...ej,
-      ultimaSesion: ultimaSesionMap[ej.id]
-        ? { ejercicioId: ej.id, ...ultimaSesionMap[ej.id] }
-        : undefined,
-      registro: registros[ej.id] || {
+    return rutina.fuerza.map((ej) => {
+      const reg = registros[ej.id] || {
         ejercicioId: ej.id,
         peso: "",
         repeticiones: "",
         completado: false,
-      },
-    }));
+      };
+      const completado = Boolean(
+        reg.peso &&
+          reg.peso.trim().length > 0 &&
+          reg.repeticiones &&
+          reg.repeticiones.trim().length > 0
+      );
+      return {
+        ...ej,
+        ultimaSesion: ultimaSesionMap[ej.id]
+          ? { ejercicioId: ej.id, ...ultimaSesionMap[ej.id] }
+          : undefined,
+        registro: {
+          ...reg,
+          completado,
+        },
+      };
+    });
   }, [rutina, registros, ultimaSesionMap]);
 
-  const todosLosEjercicios = useMemo(
-    () => [...ejerciciosCore, ...ejerciciosFuerza],
-    [ejerciciosCore, ejerciciosFuerza]
-  );
-
-  const totalEjercicios = todosLosEjercicios.length;
-  const completados = todosLosEjercicios.filter(
-    (ej) => ej.registro.completado
-  ).length;
-  const coreCompletados = ejerciciosCore.filter(
-    (ej) => ej.registro.completado
-  ).length;
-  const fuerzaCompletados = ejerciciosFuerza.filter(
-    (ej) => ej.registro.completado
-  ).length;
-  const todosCompletados =
-    totalEjercicios > 0 && completados === totalEjercicios;
-  const porcentaje =
-    totalEjercicios > 0 ? Math.round((completados / totalEjercicios) * 100) : 0;
-
-  // Calentamiento y Estiramiento (opcionales)
+  // Calentamiento (ahora obligatorio, un solo tilde para todo el bloque)
   const itemsCalentamiento = useMemo(() => {
     if (!rutina || !rutina.calentamiento) return [];
     return rutina.calentamiento
@@ -203,39 +207,66 @@ export default function SesionEntrenamiento() {
       .filter((item) => item.nombre.length > 0);
   }, [rutina]);
 
-  const [calentamientoCompletados, setCalentamientoCompletados] = useState<
-    Record<string, boolean>
-  >({});
+  const [calentamientoCompletado, setCalentamientoCompletado] =
+    useState<boolean>(false);
+
+  // Cardio y Estiramiento (opcionales, tilde único por sección)
+  const [cardioCompletado, setCardioCompletado] = useState<boolean>(false);
   const [estiramientoCompletado, setEstiramientoCompletado] =
     useState<boolean>(false);
 
-  const handleToggleCalentamiento = useCallback((id: string) => {
-    setCalentamientoCompletados((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+  const handleToggleCalentamiento = useCallback(() => {
+    setCalentamientoCompletado((prev) => !prev);
   }, []);
 
-  const handleMarcarTodosCalentamiento = useCallback(
-    (marcar: boolean) => {
-      const nuevo: Record<string, boolean> = {};
-      itemsCalentamiento.forEach((it) => {
-        nuevo[it.id] = marcar;
-      });
-      setCalentamientoCompletados(nuevo);
-    },
-    [itemsCalentamiento]
-  );
+  const handleToggleCardio = useCallback(() => {
+    setCardioCompletado((prev) => !prev);
+  }, []);
 
   const handleToggleEstiramiento = useCallback(() => {
     setEstiramientoCompletado((prev) => !prev);
   }, []);
 
-  const calentamientoCompletadosCount = useMemo(
+  // Conteo de ejercicios de Core y Fuerza completados (únicamente al ingresar peso y repeticiones)
+  const coreCompletados = useMemo(
     () =>
-      itemsCalentamiento.filter((it) => calentamientoCompletados[it.id]).length,
-    [itemsCalentamiento, calentamientoCompletados]
+      ejerciciosCore.filter(
+        (ej) =>
+          ej.registro.peso.trim().length > 0 &&
+          ej.registro.repeticiones.trim().length > 0
+      ).length,
+    [ejerciciosCore]
   );
+
+  const fuerzaCompletados = useMemo(
+    () =>
+      ejerciciosFuerza.filter(
+        (ej) =>
+          ej.registro.peso.trim().length > 0 &&
+          ej.registro.repeticiones.trim().length > 0
+      ).length,
+    [ejerciciosFuerza]
+  );
+
+  // Verificación de obligatorios: Calentamiento tildado + todo Core y Fuerza con peso y reps
+  const coreCumplido =
+    ejerciciosCore.length === 0 || coreCompletados === ejerciciosCore.length;
+  const fuerzaCumplido =
+    ejerciciosFuerza.length === 0 || fuerzaCompletados === ejerciciosFuerza.length;
+  const calentamientoCumplido = Boolean(calentamientoCompletado);
+
+  const todosCompletados =
+    calentamientoCumplido && coreCumplido && fuerzaCumplido;
+
+  // Progreso general considerando los bloques obligatorios: 1 (calentamiento) + N (core) + M (fuerza)
+  const totalObligatorios =
+    1 + ejerciciosCore.length + ejerciciosFuerza.length;
+  const completadosObligatorios =
+    (calentamientoCompletado ? 1 : 0) + coreCompletados + fuerzaCompletados;
+  const porcentaje =
+    totalObligatorios > 0
+      ? Math.round((completadosObligatorios / totalObligatorios) * 100)
+      : 0;
 
   // Carrusel: índice actual según TABS_ORDER
   const tabIndex = useMemo(() => {
@@ -258,14 +289,12 @@ export default function SesionEntrenamiento() {
       const offsetH = slideActual.offsetHeight;
       const altura = Math.max(rect.height, scrollH, offsetH);
       if (altura > 0) {
-        // Margen extra de seguridad (16px) para evitar cualquier corte en pantallas móviles
         setViewportHeight(Math.ceil(altura) + 16);
       }
     };
 
     actualizarAltura();
 
-    // Re-medir después de micro-ticks y al finalizar la animación de transición
     const timer1 = setTimeout(actualizarAltura, 60);
     const timer2 = setTimeout(actualizarAltura, 420);
 
@@ -294,7 +323,8 @@ export default function SesionEntrenamiento() {
     tabIndex,
     rutina,
     registros,
-    calentamientoCompletados,
+    calentamientoCompletado,
+    cardioCompletado,
     estiramientoCompletado,
   ]);
 
@@ -323,36 +353,47 @@ export default function SesionEntrenamiento() {
     touchStartY.current = null;
   };
 
-  // Handlers
+  // Handlers para actualizar peso y repeticiones (el completado se actualiza de inmediato)
   const handleCambiarPeso = useCallback(
     (ejercicioId: number, peso: string) => {
-      setRegistros((prev) => ({
-        ...prev,
-        [ejercicioId]: { ...prev[ejercicioId], peso },
-      }));
+      setRegistros((prev) => {
+        const actual = prev[ejercicioId] || {
+          ejercicioId,
+          peso: "",
+          repeticiones: "",
+          completado: false,
+        };
+        const nuevoCompletado =
+          peso.trim().length > 0 && actual.repeticiones.trim().length > 0;
+        return {
+          ...prev,
+          [ejercicioId]: { ...actual, peso, completado: nuevoCompletado },
+        };
+      });
     },
     []
   );
 
   const handleCambiarRepeticiones = useCallback(
     (ejercicioId: number, repeticiones: string) => {
-      setRegistros((prev) => ({
-        ...prev,
-        [ejercicioId]: { ...prev[ejercicioId], repeticiones },
-      }));
-    },
-    []
-  );
-
-  const handleToggleCompletado = useCallback(
-    (ejercicioId: number) => {
-      setRegistros((prev) => ({
-        ...prev,
-        [ejercicioId]: {
-          ...prev[ejercicioId],
-          completado: !prev[ejercicioId].completado,
-        },
-      }));
+      setRegistros((prev) => {
+        const actual = prev[ejercicioId] || {
+          ejercicioId,
+          peso: "",
+          repeticiones: "",
+          completado: false,
+        };
+        const nuevoCompletado =
+          actual.peso.trim().length > 0 && repeticiones.trim().length > 0;
+        return {
+          ...prev,
+          [ejercicioId]: {
+            ...actual,
+            repeticiones,
+            completado: nuevoCompletado,
+          },
+        };
+      });
     },
     []
   );
@@ -370,12 +411,12 @@ export default function SesionEntrenamiento() {
     const fechaFormateada = `${ahora.toLocaleDateString("es-AR")} - ${ahora.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })} hs`;
 
     // Armar lista de ejercicios completa para el historial:
-    // Calentamiento (opcional) + Core + Fuerza + Estiramiento (opcional)
+    // Calentamiento (obligatorio, tildado por bloque) + Core + Fuerza + Cardio (opcional) + Estiramiento (opcional)
     const calentamientoHistorial = itemsCalentamiento.map((item) => ({
       ejercicioId: item.id,
       nombre: item.nombre,
       categoria: "calentamiento",
-      completado: Boolean(calentamientoCompletados[item.id]),
+      completado: Boolean(calentamientoCompletado),
     }));
 
     const coreHistorial = ejerciciosCore.map((ej) => ({
@@ -385,7 +426,9 @@ export default function SesionEntrenamiento() {
       peso: registros[ej.id]?.peso || "-",
       repeticiones: registros[ej.id]?.repeticiones || "-",
       series: ej.seriesRepeticiones,
-      completado: Boolean(registros[ej.id]?.completado),
+      completado: Boolean(
+        registros[ej.id]?.peso.trim() && registros[ej.id]?.repeticiones.trim()
+      ),
     }));
 
     const fuerzaHistorial = ejerciciosFuerza.map((ej) => ({
@@ -395,8 +438,22 @@ export default function SesionEntrenamiento() {
       peso: registros[ej.id]?.peso || "-",
       repeticiones: registros[ej.id]?.repeticiones || "-",
       series: ej.seriesRepeticiones,
-      completado: Boolean(registros[ej.id]?.completado),
+      completado: Boolean(
+        registros[ej.id]?.peso.trim() && registros[ej.id]?.repeticiones.trim()
+      ),
     }));
+
+    const cardioHistorial = rutina.cardio
+      ? [
+          {
+            ejercicioId: "car-1",
+            nombre: "Entrenamiento Cardiovascular",
+            categoria: "cardio",
+            series: rutina.cardio,
+            completado: Boolean(cardioCompletado),
+          },
+        ]
+      : [];
 
     const estiramientoHistorial = [
       {
@@ -412,6 +469,7 @@ export default function SesionEntrenamiento() {
       ...calentamientoHistorial,
       ...coreHistorial,
       ...fuerzaHistorial,
+      ...cardioHistorial,
       ...estiramientoHistorial,
     ];
 
@@ -452,9 +510,9 @@ export default function SesionEntrenamiento() {
         {rutina && (
           <EncabezadoPantalla
             titulo={`SESION DE ENTRENAMIENTO`}
-            subtitulo={`Rutina N° ${rutina.numero} — Registra los pesos y repeticiones de cada ejercicio de fuerza y core.`}
+            subtitulo={`Rutina N° ${rutina.numero} — Completá el calentamiento y registrá los pesos y repeticiones de core y fuerza.`}
             icono={<IconoSesion />}
-            badge={`${totalEjercicios} ejercicios registrables`}
+            badge={`${ejerciciosCore.length + ejerciciosFuerza.length} ejercicios de fuerza/core`}
           />
         )}
 
@@ -491,12 +549,12 @@ export default function SesionEntrenamiento() {
                 <PestanasSesion
                   tabActiva={tabActiva}
                   onCambiarTab={setTabActiva}
-                  calentamientoCompletados={calentamientoCompletadosCount}
-                  calentamientoTotal={itemsCalentamiento.length}
+                  calentamientoCompletado={calentamientoCompletado}
                   coreCompletados={coreCompletados}
                   coreTotal={ejerciciosCore.length}
                   fuerzaCompletados={fuerzaCompletados}
                   fuerzaTotal={ejerciciosFuerza.length}
+                  cardioCompletado={cardioCompletado}
                   estiramientoCompletado={estiramientoCompletado}
                 />
               </div>
@@ -516,7 +574,7 @@ export default function SesionEntrenamiento() {
                     transform: `translateX(-${tabIndex * 100}%)`,
                   }}
                 >
-                  {/* Slide 0: Calentamiento (opcional) */}
+                  {/* Slide 0: Calentamiento (obligatorio, tilde único para todo el bloque) */}
                   <div
                     ref={(el) => {
                       slideRefs.current[0] = el;
@@ -529,9 +587,8 @@ export default function SesionEntrenamiento() {
                     <div className="sesion__tab-bloque">
                       <SeccionCalentamientoSesion
                         items={itemsCalentamiento}
-                        completadosMap={calentamientoCompletados}
-                        onToggleItem={handleToggleCalentamiento}
-                        onMarcarTodos={handleMarcarTodosCalentamiento}
+                        completado={calentamientoCompletado}
+                        onToggleCompletado={handleToggleCalentamiento}
                       />
                       <button
                         type="button"
@@ -544,7 +601,7 @@ export default function SesionEntrenamiento() {
                     </div>
                   </div>
 
-                  {/* Slide 1: Core */}
+                  {/* Slide 1: Core (obligatorio, completado automático al registrar peso y reps) */}
                   <div
                     ref={(el) => {
                       slideRefs.current[1] = el;
@@ -560,7 +617,6 @@ export default function SesionEntrenamiento() {
                         ejercicios={ejerciciosCore}
                         onCambiarPeso={handleCambiarPeso}
                         onCambiarRepeticiones={handleCambiarRepeticiones}
-                        onToggleCompletado={handleToggleCompletado}
                       />
                       <button
                         type="button"
@@ -573,7 +629,7 @@ export default function SesionEntrenamiento() {
                     </div>
                   </div>
 
-                  {/* Slide 2: Fuerza */}
+                  {/* Slide 2: Fuerza (obligatorio, completado automático al registrar peso y reps) */}
                   <div
                     ref={(el) => {
                       slideRefs.current[2] = el;
@@ -589,7 +645,6 @@ export default function SesionEntrenamiento() {
                         ejercicios={ejerciciosFuerza}
                         onCambiarPeso={handleCambiarPeso}
                         onCambiarRepeticiones={handleCambiarRepeticiones}
-                        onToggleCompletado={handleToggleCompletado}
                       />
                       <button
                         type="button"
@@ -602,7 +657,7 @@ export default function SesionEntrenamiento() {
                     </div>
                   </div>
 
-                  {/* Slide 3: Cardio */}
+                  {/* Slide 3: Cardio (opcional, tilde por sección) */}
                   <div
                     ref={(el) => {
                       slideRefs.current[3] = el;
@@ -613,7 +668,11 @@ export default function SesionEntrenamiento() {
                     aria-hidden={tabIndex !== 3}
                   >
                     <div className="sesion__tab-bloque">
-                      <SeccionCardio cardio={rutina.cardio} />
+                      <SeccionCardioSesion
+                        cardio={rutina.cardio}
+                        completado={cardioCompletado}
+                        onToggleCompletado={handleToggleCardio}
+                      />
                       <button
                         type="button"
                         className="sesion__boton-tab-siguiente"
@@ -625,7 +684,7 @@ export default function SesionEntrenamiento() {
                     </div>
                   </div>
 
-                  {/* Slide 4: Estiramiento (opcional) */}
+                  {/* Slide 4: Estiramiento (opcional, tilde por sección) */}
                   <div
                     ref={(el) => {
                       slideRefs.current[4] = el;
@@ -650,9 +709,9 @@ export default function SesionEntrenamiento() {
             {/* Barra de progreso general */}
             <div className="sesion__progreso-general">
               <div className="sesion__progreso-header">
-                <span className="sesion__progreso-label">Progreso general</span>
+                <span className="sesion__progreso-label">Progreso general obligatorio</span>
                 <span className="sesion__progreso-porcentaje">
-                  {porcentaje}% ({completados}/{totalEjercicios})
+                  {porcentaje}% ({completadosObligatorios}/{totalObligatorios})
                 </span>
               </div>
               <div className="sesion__progreso-barra-bg">
@@ -667,7 +726,7 @@ export default function SesionEntrenamiento() {
             <div className="sesion__acciones">
               {!todosCompletados && (
                 <p className="sesion__mensaje-requisito">
-                  Completá todos los ejercicios de Core y Fuerza para poder finalizar la sesión. Calentamiento y Estiramiento son opcionales.
+                  Completá el Calentamiento y registrá peso y repeticiones en todos los ejercicios de Core y Fuerza para poder finalizar la sesión. Cardio y Estiramiento son opcionales.
                 </p>
               )}
               <button
@@ -695,7 +754,6 @@ export default function SesionEntrenamiento() {
       {sesionFinalizada && rutina && (
         <ModalSesionFinalizada
           rutinaNumero={rutina.numero}
-          totalEjercicios={totalEjercicios}
           onVolver={handleVolver}
         />
       )}

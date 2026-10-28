@@ -3,7 +3,7 @@
 
 interface ModalSesionFinalizadaProps {
   rutinaNumero: number;
-  totalEjercicios: number;
+  totalEjercicios?: number;
   onVolver: () => void;
 }
 
@@ -25,21 +25,16 @@ const IconoCheckCircle = () => (
 
 export default function ModalSesionFinalizada({
   rutinaNumero,
-  totalEjercicios,
   onVolver,
 }: ModalSesionFinalizadaProps) {
   return (
     <div className="sesion__modal-overlay">
       <div className="sesion__modal-card">
         <IconoCheckCircle />
-        <h2 className="sesion__modal-titulo">Sesion Finalizada</h2>
+        <h2 className="sesion__modal-titulo">¡Sesión Finalizada!</h2>
         <p className="sesion__modal-texto">
-          Completaste todos los ejercicios de la Rutina N° {rutinaNumero}.
+          ¡Excelente entrenamiento! Completaste la Rutina N° {rutinaNumero} y tus datos quedaron guardados en tu historial.
         </p>
-        <div className="sesion__modal-stat">
-          <span className="sesion__modal-stat-numero">{totalEjercicios}</span>
-          <span className="sesion__modal-stat-label">ejercicios completados</span>
-        </div>
         <button
           type="button"
           className="detalle-rutina__boton detalle-rutina__boton--iniciar"
@@ -58,9 +53,10 @@ export default function ModalSesionFinalizada({
           >
             <polyline points="20 6 9 17 4 12" />
           </svg>
-          Finalizar
+          Volver a Rutinas
         </button>
       </div>
     </div>
   );
 }
+

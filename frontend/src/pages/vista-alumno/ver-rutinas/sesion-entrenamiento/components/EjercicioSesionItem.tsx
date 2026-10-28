@@ -1,5 +1,6 @@
 // EjercicioSesionItem.tsx
 // Componente para cada ejercicio durante la sesión, permite registrar peso y repeticiones
+// Se considera completado automáticamente cuando se cargan peso y repeticiones.
 
 import type { EjercicioSesion } from "../types/sesion.types";
 
@@ -7,17 +8,16 @@ interface EjercicioSesionItemProps {
   ejercicioSesion: EjercicioSesion;
   onCambiarPeso: (ejercicioId: number, peso: string) => void;
   onCambiarRepeticiones: (ejercicioId: number, reps: string) => void;
-  onToggleCompletado: (ejercicioId: number) => void;
 }
 
 const IconoCheck = () => (
   <svg
-    width="18"
-    height="18"
+    width="14"
+    height="14"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth="2.5"
+    strokeWidth="3"
     strokeLinecap="round"
     strokeLinejoin="round"
     aria-hidden="true"
@@ -30,14 +30,21 @@ export default function EjercicioSesionItem({
   ejercicioSesion,
   onCambiarPeso,
   onCambiarRepeticiones,
-  onToggleCompletado,
 }: EjercicioSesionItemProps) {
   const { registro, ultimaSesion } = ejercicioSesion;
+
+  // Un ejercicio de core/fuerza se cumple únicamente cuando tiene ingresados peso y repeticiones
+  const cumplido = Boolean(
+    registro.peso &&
+      registro.peso.trim().length > 0 &&
+      registro.repeticiones &&
+      registro.repeticiones.trim().length > 0
+  );
 
   return (
     <article
       className={`sesion__ejercicio-item ${
-        registro.completado ? "sesion__ejercicio-item--completado" : ""
+        cumplido ? "sesion__ejercicio-item--completado" : ""
       }`}
     >
       <div className="sesion__ejercicio-header">
@@ -49,20 +56,29 @@ export default function EjercicioSesionItem({
             </span>
           )}
         </div>
-        <button
-          type="button"
-          className={`sesion__boton-check ${
-            registro.completado ? "sesion__boton-check--activo" : ""
+
+        {/* Indicador automático de estado (sin botón de tilde manual) */}
+        <div
+          className={`sesion__indicador-estado ${
+            cumplido
+              ? "sesion__indicador-estado--listo"
+              : "sesion__indicador-estado--pendiente"
           }`}
-          onClick={() => onToggleCompletado(ejercicioSesion.id)}
-          aria-label={
-            registro.completado
-              ? "Marcar como no completado"
-              : "Marcar como completado"
+          title={
+            cumplido
+              ? "Completado (peso y repeticiones ingresados)"
+              : "Ingresá peso y repeticiones para cumplir este ejercicio"
           }
         >
-          <IconoCheck />
-        </button>
+          {cumplido ? (
+            <>
+              <IconoCheck />
+              <span>Listo</span>
+            </>
+          ) : (
+            <span>Ingresar datos</span>
+          )}
+        </div>
       </div>
 
       {ejercicioSesion.observaciones && (
