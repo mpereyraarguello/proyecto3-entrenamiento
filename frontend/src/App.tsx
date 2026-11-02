@@ -17,7 +17,7 @@ type TabId = 'consulta' | 'registro' | 'edicion' | 'crear-alumno' | 'modificar-a
 
 export function App() {
   // Pestaña activa: 'consulta' | 'registro' | 'edicion'
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'consulta' | 'registro' | 'edicion'| 'crear-plan'>('dashboard')
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'consulta' | 'registro' | 'edicion'| 'crear-plan' | 'crear-alumno' | 'modificar-alumno'>('dashboard')
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null)
 
   const [exercises, setExercises] = useState<Exercise[]>(() => {
