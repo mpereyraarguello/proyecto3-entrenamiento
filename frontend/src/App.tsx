@@ -15,7 +15,7 @@ import { UserPlusIcon, UserEditIcon } from './pages/vista-profesor/gestionar-alu
 
 type TabId = 'consulta' | 'registro' | 'edicion' | 'crear-alumno' | 'modificar-alumno'
 
-export function App() {
+function App() {
   // Pestaña activa: 'consulta' | 'registro' | 'edicion'
   const [activeTab, setActiveTab] = useState<'dashboard' | 'consulta' | 'registro' | 'edicion'| 'crear-plan' | 'crear-alumno' | 'modificar-alumno'>('dashboard')
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null)
@@ -305,3 +305,4 @@ export function App() {
   )
 }
 
+export default App;
