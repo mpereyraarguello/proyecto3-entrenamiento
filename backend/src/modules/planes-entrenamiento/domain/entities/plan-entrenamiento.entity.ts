@@ -1,4 +1,4 @@
-import { AggregateRoot } from '../../../../shared/domain/agregate-root.entity';
+import { AggregateRoot } from '../../../../shared/domain/aggregate-root.base';
 import { ValidacionDeNegocioException } from '../../../../shared/domain/exceptions/validacion-de-negocio.exception';
 import { NumeroPlan } from '../value-objects/numero-plan.vo';
 import { PeriodoPlan } from '../value-objects/periodo-plan.vo';

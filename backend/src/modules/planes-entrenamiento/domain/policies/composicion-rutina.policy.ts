@@ -1,4 +1,4 @@
-import { TipoEjercicio } from '../../../../shared/domain/enum/tipo-ejercicio.enum';
+import { TipoEjercicio } from '../../../../shared/domain/enums/tipo-ejercicio.enum';
 import { ValidacionDeNegocioException } from '../../../../shared/domain/exceptions/validacion-de-negocio.exception';
 import {
   MAXIMO_EJERCICIOS_CARDIO_POR_RUTINA,

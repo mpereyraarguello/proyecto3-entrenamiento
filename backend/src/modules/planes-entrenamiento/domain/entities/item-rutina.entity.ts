@@ -1,4 +1,4 @@
-import { TipoEjercicio } from '../../../../shared/domain/enum/tipo-ejercicio.enum';
+import { TipoEjercicio } from '../../../../shared/domain/enums/tipo-ejercicio.enum';
 import { SeriesRepeticiones } from '../value-objects/series-repeticiones.vo';
 import { ValidacionDeNegocioException } from '../../../../shared/domain/exceptions/validacion-de-negocio.exception';
 
