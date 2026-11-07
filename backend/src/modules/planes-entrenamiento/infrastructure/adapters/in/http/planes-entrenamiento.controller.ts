@@ -9,8 +9,8 @@ import {
 } from '@nestjs/common';
 
 // Use Cases
-import { CrearPlanEntrenamientoUseCase } from '../../../../application/use-cases/crear-plan-entrenamiento.use-case.ts/crear-plan-entrenamiento.use-case';
-import { CrearPlanEntrenamientoCommand } from '../../../../application/use-cases/crear-plan-entrenamiento.use-case.ts/crear-plan-entrenamiento.command';
+import { CrearPlanEntrenamientoUseCase } from '../../../../application/use-cases/crear-plan-entrenamiento/crear-plan-entrenamiento.use-case';
+import { CrearPlanEntrenamientoCommand } from '../../../../application/use-cases/crear-plan-entrenamiento/crear-plan-entrenamiento.command';
 
 // DTOs
 import { CrearPlanEntrenamientoDto } from './dtos/crear-plan-entrenamiento.dto';
