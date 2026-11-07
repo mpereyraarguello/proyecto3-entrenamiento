@@ -1,33 +1,26 @@
-import { Inject, Injectable } from '@nestjs/common';
-
-import { CrearEjercicioCommand } from './crear-ejercicio.command';
-import { EjercicioResponse } from '../../responses/ejercicio.response';
-import type { GeneradorId } from 'src/shared/application/ports/generador-id.port';
-import { GENERADOR_ID } from 'src/shared/application/ports/generador-id.port';
-import { ValidarNombreEjercicioUnicoValidator } from '../../validators/validar-nombre-ejercicio-unico.validator';
-import { Ejercicio } from 'src/modules/ejercicios/domain/entities/ejercicio.entity';
-import { EJERCICIO_REPOSITORY} from 'src/modules/ejercicios/domain/repositories/ejercicio.repository';
-import type { EjercicioRepository } from 'src/modules/ejercicios/domain/repositories/ejercicio.repository';
+import { Injectable, Inject } from "@nestjs/common";
+import { Ejercicio } from "src/modules/ejercicios/domain/entities/ejercicio.entity";
+import { EJERCICIO_REPOSITORY} from "src/modules/ejercicios/domain/repositories/ejercicio.repository";
+import { EjercicioMapper } from "../../mappers/ejercicio.mapper";
+import { EjercicioResponse } from "../../responses/ejercicio.response";
+import { CrearEjercicioCommand } from "./crear-ejercicio.command";
+import { EjercicioValidator } from "../../validators/validar-nombre-ejercicio-unico.validator";
+import type { IEjercicioRepository } from "src/modules/ejercicios/domain/repositories/ejercicio.repository";
 
 @Injectable()
 export class CrearEjercicioUseCase {
   constructor(
     @Inject(EJERCICIO_REPOSITORY)
-    private readonly ejercicioRepository: EjercicioRepository,
-    @Inject(GENERADOR_ID)
-    private readonly generadorId: GeneradorId,
-    private readonly validarNombreUnico: ValidarNombreEjercicioUnicoValidator,
+    private readonly ejercicioRepository: IEjercicioRepository,
+    private readonly validarNombreUnico: EjercicioValidator,
   ) {}
 
   async execute(command: CrearEjercicioCommand): Promise<EjercicioResponse> {
-    // Valida que no exista otro ejercicio con el mismo nombre
-    await this.validarNombreUnico.validar(command.nombre);
+    // 1. Validar que no exista otro ejercicio con el mismo nombre (CA.0x.06)
+    await this.validarNombreUnico.validarCreacion(command);
 
-    // Genera identificador único
-    const id = this.generadorId.generar();
-
+    // 2. Crear la entidad de dominio (el id se asigna automáticamente al persistir)
     const ejercicio = Ejercicio.crear({
-      id,
       nombre: command.nombre,
       tipoEjercicio: command.tipoEjercicio,
       gruposMusculares: command.gruposMusculares,
@@ -35,10 +28,10 @@ export class CrearEjercicioUseCase {
       imagenUrl: command.imagenUrl,
     });
 
+    // 3. Persistir en la base de datos (obteniendo el id generado)
+    const guardado = await this.ejercicioRepository.guardar(ejercicio);
 
-    await this.ejercicioRepository.guardar(ejercicio);
-
-
-    return EjercicioResponse.desdeDominio(ejercicio);
+    // 4. Retornar DTO / Response desacoplada
+    return EjercicioMapper.toDto(guardado);
   }
 }

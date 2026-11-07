@@ -2,14 +2,16 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EjercicioController } from './adapters/in/http/ejercicio.controller';
 import { CrearEjercicioUseCase } from '../application/use-cases/crear-ejercicio/crear-ejercicio.use-case';
-import { ListarEjerciciosUseCase } from '../application/use-cases/listar-ejercicios/listar-ejercicios.use-case';
-import { ConsultarEjercicioUseCase } from '../application/use-cases/consultar-ejercicio/consultar-ejercicio.use-case';
-import { ValidarNombreEjercicioUnicoValidator } from '../application/validators/validar-nombre-ejercicio-unico.validator';
+import { EjercicioFinder } from '../application/finders/ejercicio.finder';
+import { EjercicioQueryService } from '../application/services/ejercicio.query-service';
 import { EJERCICIO_REPOSITORY } from '../domain/repositories/ejercicio.repository';
 import { EjercicioTypeOrmRepository } from './adapters/out/persistence/ejercicio.typeorm.repository';
 import { EjercicioOrmEntity } from './adapters/out/persistence/orm-entities/ejercicio.orm-entity';
-import { GENERADOR_ID } from '../../../shared/application/ports/generador-id.port';
-import { UuidGeneradorIdAdapter } from '../../../shared/infrastructure/adapters/uuid-generador-id.adapter';
+import { EjercicioValidator } from '../application/validators/validar-nombre-ejercicio-unico.validator';
+import { ModificarEjercicioUseCase } from '../application/use-cases/modificar-ejercicio/modificar-ejercicio.use-case';
+import { EliminarEjercicioUseCase } from '../application/use-cases/eliminar-ejercicio/eliminar-ejercicio.use-case';
+import { ValidarEjercicioNoEnRutinaActivaValidator } from '../application/validators/validar-ejercicio-no-en-rutina-activa.validator';
+import { VERIFICADOR_EJERCICIO_EN_RUTINA_ACTIVA } from '../application/ports/verificador-ejercicio-en-rutina-activa.port';
 
 @Module({
   imports: [
@@ -19,31 +21,29 @@ import { UuidGeneradorIdAdapter } from '../../../shared/infrastructure/adapters/
     EjercicioController,
   ],
   providers: [
-    // Use Cases
     CrearEjercicioUseCase,
-    ListarEjerciciosUseCase,
-    ConsultarEjercicioUseCase,
-
-    // Validators
-    ValidarNombreEjercicioUnicoValidator,
-
-    // Repositories (Puertos y Adaptadores)
+    ModificarEjercicioUseCase,
+    EliminarEjercicioUseCase,
+    EjercicioValidator,
+    EjercicioFinder,
+    EjercicioQueryService,
+    ValidarEjercicioNoEnRutinaActivaValidator,
     {
       provide: EJERCICIO_REPOSITORY,
       useClass: EjercicioTypeOrmRepository,
     },
-
-    // Shared Ports
-    {
-      provide: GENERADOR_ID,
-      useClass: UuidGeneradorIdAdapter,
-    },
+    /*{
+      provide: VERIFICADOR_EJERCICIO_EN_RUTINA_ACTIVA,
+      useClass: VerificadorEjercicioEnRutinaActivaAdapter, //este es el que se conectaria con plan-entrenamiento
+    },*/
   ],
   exports: [
     EJERCICIO_REPOSITORY,
     CrearEjercicioUseCase,
-    ListarEjerciciosUseCase,
-    ConsultarEjercicioUseCase,
+    EjercicioQueryService,
+    EjercicioFinder,
+    ModificarEjercicioUseCase,
+    EliminarEjercicioUseCase,
   ],
 })
 export class EjercicioModule {}

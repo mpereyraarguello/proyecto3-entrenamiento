@@ -11,7 +11,7 @@ import { DomainEvent } from './domain-event.base';
  * - Acumula eventos de dominio que ocurrieron en el agregado. Quien
  *   orquesta (el use case) los publica después de persistir.
  */
-export abstract class AggregateRoot<TId = string> extends Entity<TId> {
+export abstract class AggregateRoot<TId = number> extends Entity<TId> {
   private readonly _domainEvents: DomainEvent[] = [];
 
   protected constructor(id: TId) {
