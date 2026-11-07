@@ -4,7 +4,6 @@ import { GrupoMuscular } from '../../../../shared/domain/enums/grupo-muscular.en
 import { EjercicioInvalidoException } from '../exceptions/ejercicio-invalido.exception';
 
 export interface CrearEjercicioProps {
-  id: string;
   nombre: string;
   tipoEjercicio: TipoEjercicio;
   gruposMusculares?: GrupoMuscular[];
@@ -13,7 +12,7 @@ export interface CrearEjercicioProps {
 }
 
 export interface ReconstituirEjercicioProps {
-  id: string;
+  id: number;
   nombre: string;
   tipoEjercicio: TipoEjercicio;
   gruposMusculares: GrupoMuscular[];
@@ -22,7 +21,7 @@ export interface ReconstituirEjercicioProps {
   createdAt: Date;
 }
 
-export class Ejercicio extends AggregateRoot<string> {
+export class Ejercicio extends AggregateRoot<number | null> {
   private _nombre: string;
   private _tipoEjercicio: TipoEjercicio;
   private _gruposMusculares: GrupoMuscular[];
@@ -31,7 +30,7 @@ export class Ejercicio extends AggregateRoot<string> {
   private readonly _createdAt: Date;
 
   private constructor(
-    id: string,
+    id: number | null,
     nombre: string,
     tipoEjercicio: TipoEjercicio,
     gruposMusculares: GrupoMuscular[],
@@ -64,7 +63,7 @@ export class Ejercicio extends AggregateRoot<string> {
     );
 
     return new Ejercicio(
-      props.id,
+      null, // Se asigna automáticamente en la base de datos al persistir
       nombreLimpio,
       props.tipoEjercicio,
       gruposValidados,
@@ -90,7 +89,7 @@ export class Ejercicio extends AggregateRoot<string> {
     tipo: TipoEjercicio,
     grupos?: GrupoMuscular[],
   ): GrupoMuscular[] {
-    const gruposLimpios = grupos ? grupos.filter(g => g !== GrupoMuscular.SIN_GRUPO_MUSCULAR) : [];
+    const gruposLimpios = grupos ? grupos.filter((g) => g !== GrupoMuscular.SIN_GRUPO_MUSCULAR) : [];
 
     if (
       tipo === TipoEjercicio.CALENTAMIENTO ||
@@ -111,7 +110,6 @@ export class Ejercicio extends AggregateRoot<string> {
           `Los ejercicios de tipo "${tipo}" deben tener al menos un grupo muscular asignado.`,
         );
       }
-      // Eliminar duplicados si los hubiera
       return Array.from(new Set(gruposLimpios));
     }
 

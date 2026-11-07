@@ -1,4 +1,4 @@
-export abstract class Entity<TId = string> {
+export abstract class Entity<TId = number> {
   protected readonly _id: TId;
 
   constructor(id: TId) {

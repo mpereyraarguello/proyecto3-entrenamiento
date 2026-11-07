@@ -1,19 +1,17 @@
-import { Controller, Post, HttpCode, HttpStatus, Body, Get, Param } from "@nestjs/common";
+import { Controller, Post, HttpCode, HttpStatus, Body, Get, Query, Param, ParseIntPipe } from "@nestjs/common";
+import { BuscarEjercicioQuery } from "src/modules/ejercicios/application/queries/buscar-ejercicio.query";
 import { EjercicioResponse } from "src/modules/ejercicios/application/responses/ejercicio.response";
-import { ConsultarEjercicioCommand } from "src/modules/ejercicios/application/use-cases/consultar-ejercicio/consultar-ejercicio.command";
-import { ConsultarEjercicioUseCase } from "src/modules/ejercicios/application/use-cases/consultar-ejercicio/consultar-ejercicio.use-case";
+import { EjercicioQueryService } from "src/modules/ejercicios/application/services/ejercicio.query-service";
 import { CrearEjercicioCommand } from "src/modules/ejercicios/application/use-cases/crear-ejercicio/crear-ejercicio.command";
 import { CrearEjercicioUseCase } from "src/modules/ejercicios/application/use-cases/crear-ejercicio/crear-ejercicio.use-case";
-import { ListarEjerciciosUseCase } from "src/modules/ejercicios/application/use-cases/listar-ejercicios/listar-ejercicios.use-case";
+import { BuscarEjercicioDto } from "./dtos/buscar-ejercicio.dto";
 import { CrearEjercicioDto } from "./dtos/crear-ejercicio.dto";
 
-
-@Controller('ejercicio')
+@Controller('ejercicios')
 export class EjercicioController {
   constructor(
     private readonly crearEjercicioUseCase: CrearEjercicioUseCase,
-    private readonly listarEjerciciosUseCase: ListarEjerciciosUseCase,
-    private readonly consultarEjercicioUseCase: ConsultarEjercicioUseCase,
+    private readonly queryService: EjercicioQueryService,
   ) {}
 
   @Post()
@@ -30,14 +28,25 @@ export class EjercicioController {
     return await this.crearEjercicioUseCase.execute(command);
   }
 
+  @Get('search-by')
+  async findBy(
+    @Query() dto: BuscarEjercicioDto,
+  ): Promise<{ data: EjercicioResponse[]; total: number }> {
+    const query = new BuscarEjercicioQuery(
+      dto.termino,
+      dto.tipoEjercicio,
+      dto.grupoMuscular,
+    );
+    return await this.queryService.findBy(query);
+  }
+
   @Get()
   async findAll(): Promise<EjercicioResponse[]> {
-    return await this.listarEjerciciosUseCase.execute();
+    return await this.queryService.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<EjercicioResponse> {
-    const command = new ConsultarEjercicioCommand(id);
-    return await this.consultarEjercicioUseCase.execute(command);
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<EjercicioResponse> {
+    return await this.queryService.findDtoById(id);
   }
 }

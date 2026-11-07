@@ -3,7 +3,7 @@ import { GrupoMuscular } from '../../../../shared/domain/enums/grupo-muscular.en
 import { Ejercicio } from '../../domain/entities/ejercicio.entity';
 
 export class EjercicioResponse {
-  id!: string;
+  id!: number;
   nombre!: string;
   tipoEjercicio!: TipoEjercicio;
   gruposMusculares!: GrupoMuscular[];
@@ -13,13 +13,13 @@ export class EjercicioResponse {
 
   static desdeDominio(ejercicio: Ejercicio): EjercicioResponse {
     const res = new EjercicioResponse();
-    res.id = ejercicio.id;
+    res.id = ejercicio.id!;
     res.nombre = ejercicio.nombre;
     res.tipoEjercicio = ejercicio.tipoEjercicio;
     res.gruposMusculares = ejercicio.gruposMusculares;
     res.observacion = ejercicio.observacion;
     res.imagenUrl = ejercicio.imagenUrl;
-    res.createdAt = ejercicio.createdAt.toISOString();  
+    res.createdAt = ejercicio.createdAt.toISOString();
     return res;
   }
 }
