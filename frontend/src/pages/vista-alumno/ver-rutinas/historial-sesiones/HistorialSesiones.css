@@ -1,0 +1,452 @@
+/* HistorialSesiones.css - Mobile-First Responsive Styles */
+
+.historial {
+  min-height: 100vh;
+  background-color: var(--bg-main, #121212);
+  color: var(--color-text, #ffffff);
+  padding: 30px 20px 80px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.historial__container {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.historial__contenido {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Resumen de Métricas ── */
+.historial__resumen-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+.historial__resumen-card {
+  background: var(--bg-surface, #1e1e1e);
+  border: 1px solid var(--color-border, rgba(110, 139, 126, 0.25));
+  border-radius: 14px;
+  padding: 16px 14px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.historial__resumen-numero {
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  color: var(--color-primary, #00ff00);
+  font-size: clamp(1.8rem, 6vw, 2.3rem);
+  line-height: 1;
+}
+
+.historial__resumen-label {
+  font-family: var(--font-body, system-ui, sans-serif);
+  color: var(--color-subtext, #6e8b7e);
+  font-size: clamp(0.75rem, 2.9vw, 0.82rem);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Lista de Sesiones ── */
+.historial__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+/* ── Tarjeta de Sesión ── */
+.historial__card {
+  background: var(--bg-surface, #1e1e1e);
+  border: 1px solid var(--color-border, rgba(110, 139, 126, 0.25));
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.historial__card:hover {
+  border-color: rgba(0, 255, 0, 0.4);
+}
+
+.historial__card-header {
+  padding: 16px 18px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.historial__card-header:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.historial__card-top-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.historial__badges-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.historial__badge-plan {
+  background: rgba(0, 255, 0, 0.12);
+  color: var(--color-primary, #00ff00);
+  border: 1px solid var(--color-primary, #00ff00);
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  font-size: 0.8rem;
+  padding: 3px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.historial__badge-rutina {
+  background: rgba(110, 139, 126, 0.18);
+  color: #c7ded3;
+  border: 1px solid rgba(110, 139, 126, 0.35);
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  font-size: 0.8rem;
+  padding: 3px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.historial__chevron {
+  color: var(--color-subtext, #6e8b7e);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.historial__chevron--abierto {
+  transform: rotate(180deg);
+  color: var(--color-primary, #00ff00);
+}
+
+.historial__rutina-nombre {
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  color: var(--color-text, #ffffff);
+  font-size: clamp(1.1rem, 4vw, 1.25rem);
+  margin: 0;
+  letter-spacing: 0.6px;
+  line-height: 1.25;
+}
+
+.historial__card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.historial__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-subtext, #6e8b7e);
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: clamp(0.78rem, 2.9vw, 0.84rem);
+}
+
+.historial__meta-completados {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-primary, #00ff00);
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: clamp(0.75rem, 2.8vw, 0.82rem);
+  font-weight: 500;
+}
+
+/* ── Detalle Desplegable ── */
+.historial__card-contenido {
+  padding: 16px 18px 20px;
+  border-top: 1px solid rgba(110, 139, 126, 0.2);
+  background: rgba(0, 0, 0, 0.2);
+  animation: historial-slideDown 0.25s ease;
+}
+
+.historial__detalle-titulo {
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  color: var(--color-subtext, #6e8b7e);
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0 0 12px 0;
+}
+
+.historial__ejercicios-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.historial__ejercicio-item {
+  background: #242424;
+  border-left: 3px solid var(--color-primary, #00ff00);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.historial__ejercicio-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.historial__ejercicio-nombre-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.historial__ejercicio-nombre {
+  font-family: var(--font-body, system-ui, sans-serif);
+  color: var(--color-text, #ffffff);
+  font-size: clamp(0.88rem, 3.5vw, 0.95rem);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.historial__ejercicio-series {
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  color: var(--color-subtext, #6e8b7e);
+  font-size: 0.78rem;
+  letter-spacing: 0.3px;
+}
+
+.historial__ejercicio-nombre-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.historial__tag-opcional {
+  background: rgba(110, 139, 126, 0.15);
+  color: var(--color-subtext, #6e8b7e);
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.72rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.historial__ejercicio-item--no-realizado {
+  border-left-color: rgba(255, 82, 82, 0.6) !important;
+  opacity: 0.78;
+}
+
+.historial__ejercicio-categoria {
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  font-size: 0.72rem;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.historial__ejercicio-categoria--calentamiento {
+  background: rgba(255, 170, 0, 0.12);
+  color: #ffaa00;
+  border: 1px solid rgba(255, 170, 0, 0.4);
+}
+
+.historial__ejercicio-categoria--core {
+  background: rgba(168, 85, 247, 0.12);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.historial__ejercicio-categoria--fuerza {
+  background: rgba(0, 255, 0, 0.12);
+  color: var(--color-primary, #00ff00);
+  border: 1px solid var(--color-primary, #00ff00);
+}
+
+.historial__ejercicio-categoria--cardio {
+  background: rgba(236, 72, 153, 0.12);
+  color: #f472b6;
+  border: 1px solid rgba(236, 72, 153, 0.4);
+}
+
+.historial__ejercicio-categoria--estiramiento {
+  background: rgba(0, 210, 255, 0.12);
+  color: #00d2ff;
+  border: 1px solid rgba(0, 210, 255, 0.4);
+}
+
+.historial__ejercicio-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.historial__stat-pildora {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(110, 139, 126, 0.25);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.8rem;
+}
+
+.historial__stat-label {
+  color: var(--color-subtext, #6e8b7e);
+}
+
+.historial__stat-valor {
+  color: var(--color-text, #ffffff);
+  font-weight: 600;
+}
+
+.historial__stat-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.historial__stat-check--realizado {
+  color: var(--color-primary, #00ff00);
+  background: rgba(0, 255, 0, 0.08);
+  border: 1px solid rgba(0, 255, 0, 0.25);
+}
+
+.historial__stat-check--no-realizado {
+  color: #ff5252;
+  background: rgba(255, 82, 82, 0.08);
+  border: 1px solid rgba(255, 82, 82, 0.25);
+}
+
+/* ── Estado Vacío ── */
+.historial__vacio {
+  background: var(--bg-surface, #1e1e1e);
+  border: 1px solid var(--color-border, rgba(110, 139, 126, 0.25));
+  border-radius: 16px;
+  padding: 36px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.historial__vacio svg {
+  width: 42px;
+  height: 42px;
+  color: var(--color-subtext, #6e8b7e);
+}
+
+.historial__vacio-titulo {
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  color: var(--color-text, #ffffff);
+  font-size: 1.4rem;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.historial__vacio-texto {
+  font-family: var(--font-body, system-ui, sans-serif);
+  color: var(--color-subtext, #6e8b7e);
+  font-size: 0.9rem;
+  margin: 0;
+  max-width: 340px;
+  line-height: 1.4;
+}
+
+.historial__boton-iniciar {
+  background: var(--color-primary, #00ff00);
+  color: var(--bg-main, #121212);
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-family: var(--font-coolvetica, "Coolvetica", sans-serif);
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: filter 0.15s ease;
+}
+
+.historial__boton-iniciar:hover {
+  filter: brightness(1.1);
+}
+
+/* ── Responsive Celular ── */
+@media (max-width: 480px) {
+  .historial {
+    padding: 16px 12px 80px;
+  }
+
+  .historial__card-header {
+    padding: 14px 14px;
+  }
+
+  .historial__card-contenido {
+    padding: 14px 14px 18px;
+  }
+
+  .historial__ejercicio-item {
+    padding: 10px 12px;
+  }
+}
+
+@keyframes historial-slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

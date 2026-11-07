@@ -1,0 +1,83 @@
+import { Controller, Post, HttpCode, HttpStatus, Body, Get, Query, Param, ParseIntPipe, Patch, Delete } from "@nestjs/common";
+import { BuscarEjercicioQuery } from "src/modules/ejercicios/application/queries/buscar-ejercicio.query";
+import { EjercicioResponse } from "src/modules/ejercicios/application/responses/ejercicio.response";
+import { EjercicioQueryService } from "src/modules/ejercicios/application/services/ejercicio.query-service";
+import { CrearEjercicioCommand } from "src/modules/ejercicios/application/use-cases/crear-ejercicio/crear-ejercicio.command";
+import { CrearEjercicioUseCase } from "src/modules/ejercicios/application/use-cases/crear-ejercicio/crear-ejercicio.use-case";
+import { BuscarEjercicioDto } from "./dtos/buscar-ejercicio.dto";
+import { CrearEjercicioDto } from "./dtos/crear-ejercicio.dto";
+import { ModificarEjercicioCommand } from "src/modules/ejercicios/application/use-cases/modificar-ejercicio/modificar-ejercicio.command";
+import { ModificarEjercicioDto } from "./dtos/modificar-ejercicio.dto";
+import { ModificarEjercicioUseCase } from "src/modules/ejercicios/application/use-cases/modificar-ejercicio/modificar-ejercicio.use-case";
+import { EliminarEjercicioUseCase } from "src/modules/ejercicios/application/use-cases/eliminar-ejercicio/eliminar-ejercicio.use-case";
+import { EliminarEjercicioCommand } from "src/modules/ejercicios/application/use-cases/eliminar-ejercicio/eliminar-ejercicio.command";
+
+@Controller('ejercicios')
+export class EjercicioController {
+  constructor(
+    private readonly crearEjercicioUseCase: CrearEjercicioUseCase,
+    private readonly queryService: EjercicioQueryService,
+    private readonly modificarEjercicioUseCase: ModificarEjercicioUseCase,
+    private readonly eliminarEjercicioUseCase: EliminarEjercicioUseCase,
+  ) {}
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() dto: CrearEjercicioDto): Promise<EjercicioResponse> {
+    const command = new CrearEjercicioCommand(
+      dto.nombre,
+      dto.tipoEjercicio,
+      dto.gruposMusculares,
+      dto.observacion,
+      dto.imagenUrl,
+    );
+
+    return await this.crearEjercicioUseCase.execute(command);
+  }
+
+  @Get('search-by')
+  async findBy(
+    @Query() dto: BuscarEjercicioDto,
+  ): Promise<{ data: EjercicioResponse[]; total: number }> {
+    const query = new BuscarEjercicioQuery(
+      dto.termino,
+      dto.tipoEjercicio,
+      dto.grupoMuscular,
+    );
+    return await this.queryService.findBy(query);
+  }
+
+  @Get()
+  async findAll(): Promise<EjercicioResponse[]> {
+    return await this.queryService.findAll();
+  }
+
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<EjercicioResponse> {
+    return await this.queryService.findDtoById(id);
+  }
+
+  @Patch(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ModificarEjercicioDto,
+  ): Promise<EjercicioResponse> {
+    const command = new ModificarEjercicioCommand(
+      id,
+      dto.nombre,
+      dto.tipoEjercicio,
+      dto.gruposMusculares,
+      dto.observacion,
+      dto.imagenUrl,
+    );
+    return await this.modificarEjercicioUseCase.execute(command);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    const command = new EliminarEjercicioCommand(id);
+    await this.eliminarEjercicioUseCase.execute(command);
+  }
+
+}
