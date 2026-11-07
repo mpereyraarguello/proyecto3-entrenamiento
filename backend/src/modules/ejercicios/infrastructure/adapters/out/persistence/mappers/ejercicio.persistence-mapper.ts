@@ -16,6 +16,7 @@ export class EjercicioMapper {
       imagenUrl: orm.imagenUrl,
       createdAt: orm.createdAt,
       updatedAt: orm.updatedAt,
+      deletedAt: orm.deletedAt,
     });
   }
 
@@ -33,6 +34,7 @@ export class EjercicioMapper {
     if (domain.updatedAt) {
       orm.updatedAt = domain.updatedAt;
     }
+    orm.deletedAt = domain.deletedAt;
     return orm;
   }
 

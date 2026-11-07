@@ -20,6 +20,7 @@ export interface ReconstituirEjercicioProps {
   imagenUrl: string | null;
   createdAt: Date;
   updatedAt?: Date | null;
+  deletedAt?: Date | null;
 }
 
 export interface ModificarEjercicioProps {
@@ -38,6 +39,7 @@ export class Ejercicio extends AggregateRoot<number | null> {
   private _imagenUrl: string | null;
   private readonly _createdAt: Date;
   private _updatedAt?: Date | null;
+  private _deletedAt?: Date | null;
 
   private constructor(
     id: number | null,
@@ -48,6 +50,7 @@ export class Ejercicio extends AggregateRoot<number | null> {
     imagenUrl: string | null,
     createdAt: Date,
     updatedAt?: Date | null,
+    deletedAt?: Date | null
   ) {
     super(id);
     this._nombre = nombre;
@@ -94,7 +97,8 @@ export class Ejercicio extends AggregateRoot<number | null> {
       props.observacion,
       props.imagenUrl,
       props.createdAt,
-      props.updatedAt
+      props.updatedAt,
+      props.deletedAt
     );
   }
 
@@ -150,6 +154,13 @@ export class Ejercicio extends AggregateRoot<number | null> {
     this._updatedAt = new Date();
   }
 
+  public darDeBaja(): void {
+    if (this._deletedAt) {
+      throw new EjercicioInvalidoException('El ejercicio ya se encuentra dado de baja.');
+    }
+    this._deletedAt = new Date();
+  }
+
   get nombre(): string {
     return this._nombre;
   }
@@ -176,5 +187,13 @@ export class Ejercicio extends AggregateRoot<number | null> {
 
   get updatedAt(): Date | null | undefined {
     return this._updatedAt;
+  }
+
+  get deletedAt(): Date | null | undefined {
+    return this._deletedAt;
+  }
+
+  get estaActivo(): boolean {
+    return !this._deletedAt;
   }
 }

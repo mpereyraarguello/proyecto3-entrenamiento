@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('ejercicios')
 export class EjercicioOrmEntity {
@@ -25,4 +25,7 @@ export class EjercicioOrmEntity {
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updatedAt?: Date | null;
+
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
+  deletedAt?: Date | null;
 }

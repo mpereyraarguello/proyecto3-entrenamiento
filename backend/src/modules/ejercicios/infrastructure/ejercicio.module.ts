@@ -9,6 +9,9 @@ import { EjercicioTypeOrmRepository } from './adapters/out/persistence/ejercicio
 import { EjercicioOrmEntity } from './adapters/out/persistence/orm-entities/ejercicio.orm-entity';
 import { EjercicioValidator } from '../application/validators/validar-nombre-ejercicio-unico.validator';
 import { ModificarEjercicioUseCase } from '../application/use-cases/modificar-ejercicio/modificar-ejercicio.use-case';
+import { EliminarEjercicioUseCase } from '../application/use-cases/eliminar-ejercicio/eliminar-ejercicio.use-case';
+import { ValidarEjercicioNoEnRutinaActivaValidator } from '../application/validators/validar-ejercicio-no-en-rutina-activa.validator';
+import { VERIFICADOR_EJERCICIO_EN_RUTINA_ACTIVA } from '../application/ports/verificador-ejercicio-en-rutina-activa.port';
 
 @Module({
   imports: [
@@ -18,22 +21,21 @@ import { ModificarEjercicioUseCase } from '../application/use-cases/modificar-ej
     EjercicioController,
   ],
   providers: [
-    // Use Cases (Escritura / Comandos)
     CrearEjercicioUseCase,
     ModificarEjercicioUseCase,
-
-    // Validators
+    EliminarEjercicioUseCase,
     EjercicioValidator,
-
-    // Consultas / Lecturas (Query Side)
     EjercicioFinder,
     EjercicioQueryService,
-
-    // Repositories (Puertos y Adaptadores)
+    ValidarEjercicioNoEnRutinaActivaValidator,
     {
       provide: EJERCICIO_REPOSITORY,
       useClass: EjercicioTypeOrmRepository,
     },
+    /*{
+      provide: VERIFICADOR_EJERCICIO_EN_RUTINA_ACTIVA,
+      useClass: VerificadorEjercicioEnRutinaActivaAdapter, //este es el que se conectaria con plan-entrenamiento
+    },*/
   ],
   exports: [
     EJERCICIO_REPOSITORY,
@@ -41,6 +43,7 @@ import { ModificarEjercicioUseCase } from '../application/use-cases/modificar-ej
     EjercicioQueryService,
     EjercicioFinder,
     ModificarEjercicioUseCase,
+    EliminarEjercicioUseCase,
   ],
 })
 export class EjercicioModule {}

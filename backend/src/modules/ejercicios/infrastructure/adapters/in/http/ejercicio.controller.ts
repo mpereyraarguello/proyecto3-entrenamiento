@@ -1,4 +1,4 @@
-import { Controller, Post, HttpCode, HttpStatus, Body, Get, Query, Param, ParseIntPipe, Patch } from "@nestjs/common";
+import { Controller, Post, HttpCode, HttpStatus, Body, Get, Query, Param, ParseIntPipe, Patch, Delete } from "@nestjs/common";
 import { BuscarEjercicioQuery } from "src/modules/ejercicios/application/queries/buscar-ejercicio.query";
 import { EjercicioResponse } from "src/modules/ejercicios/application/responses/ejercicio.response";
 import { EjercicioQueryService } from "src/modules/ejercicios/application/services/ejercicio.query-service";
@@ -9,6 +9,8 @@ import { CrearEjercicioDto } from "./dtos/crear-ejercicio.dto";
 import { ModificarEjercicioCommand } from "src/modules/ejercicios/application/use-cases/modificar-ejercicio/modificar-ejercicio.command";
 import { ModificarEjercicioDto } from "./dtos/modificar-ejercicio.dto";
 import { ModificarEjercicioUseCase } from "src/modules/ejercicios/application/use-cases/modificar-ejercicio/modificar-ejercicio.use-case";
+import { EliminarEjercicioUseCase } from "src/modules/ejercicios/application/use-cases/eliminar-ejercicio/eliminar-ejercicio.use-case";
+import { EliminarEjercicioCommand } from "src/modules/ejercicios/application/use-cases/eliminar-ejercicio/eliminar-ejercicio.command";
 
 @Controller('ejercicios')
 export class EjercicioController {
@@ -16,6 +18,7 @@ export class EjercicioController {
     private readonly crearEjercicioUseCase: CrearEjercicioUseCase,
     private readonly queryService: EjercicioQueryService,
     private readonly modificarEjercicioUseCase: ModificarEjercicioUseCase,
+    private readonly eliminarEjercicioUseCase: EliminarEjercicioUseCase,
   ) {}
 
   @Post()
@@ -69,4 +72,12 @@ export class EjercicioController {
     );
     return await this.modificarEjercicioUseCase.execute(command);
   }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    const command = new EliminarEjercicioCommand(id);
+    await this.eliminarEjercicioUseCase.execute(command);
+  }
+
 }
