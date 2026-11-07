@@ -23,6 +23,7 @@ import { RelojSystemAdapter } from '../../../shared/infrastructure/adapters/relo
 
 // Controllers
 import { PlanesEntrenamientoController } from './adapters/in/http/planes-entrenamiento.controller';
+import { VerificarEjercicioEnRutinaActivaUseCase } from '../application/use-cases/verificar-ejercicio-en-rutina-activa/verificar-ejercicio-en-rutina-activa.use-case';
 
 @Module({
   controllers: [PlanesEntrenamientoController],
@@ -45,6 +46,10 @@ import { PlanesEntrenamientoController } from './adapters/in/http/planes-entrena
     // 4. Validators y Use Cases
     AlumnoSinPlanActivoValidator,
     CrearPlanEntrenamientoUseCase,
+    VerificarEjercicioEnRutinaActivaUseCase,
   ],
+  exports: [
+    VerificarEjercicioEnRutinaActivaUseCase
+  ]
 })
 export class PlanesEntrenamientoModule {}

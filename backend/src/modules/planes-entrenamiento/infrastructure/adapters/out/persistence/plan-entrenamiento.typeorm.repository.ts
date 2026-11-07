@@ -9,13 +9,24 @@ import { PlanEntrenamientoPersistenceMapper } from './mappers/plan-entrenamiento
 import { EstadoPlan } from '../../../../domain/enums/estado-plan.enums';
 
 @Injectable()
-export class PlanEntrenamientoTypeOrmRepository
-  implements PlanEntrenamientoRepository
-{
+export class PlanEntrenamientoTypeOrmRepository implements PlanEntrenamientoRepository{
   constructor(
     @InjectRepository(PlanEntrenamientoOrmEntity)
     private readonly repo: Repository<PlanEntrenamientoOrmEntity>,
   ) {}
+
+  async verificarSiEjercicioEstaEnPlanActivo(ejercicioId: string): Promise<boolean> {
+    // Buscamos si el ejercicio está en algún ítem de una rutina de un plan ACTIVO
+    const count = await this.repo.manager
+      .createQueryBuilder(PlanEntrenamientoOrmEntity, 'plan')
+      .innerJoin('plan.rutinas', 'rutina')
+      .innerJoin('rutina.items', 'item')
+      .where('plan.estado = :estado', { estado: EstadoPlan.ACTIVO })
+      .andWhere('item.ejercicioId = :ejercicioId', { ejercicioId })
+      .getCount();
+
+    return count > 0; // Si hay al menos 1, devuelve true
+  }
 
   async save(plan: PlanEntrenamiento): Promise<void> {
     const orm = PlanEntrenamientoPersistenceMapper.toOrm(plan);
