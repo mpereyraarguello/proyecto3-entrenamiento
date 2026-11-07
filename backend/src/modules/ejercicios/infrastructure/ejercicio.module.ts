@@ -8,6 +8,7 @@ import { EJERCICIO_REPOSITORY } from '../domain/repositories/ejercicio.repositor
 import { EjercicioTypeOrmRepository } from './adapters/out/persistence/ejercicio.typeorm.repository';
 import { EjercicioOrmEntity } from './adapters/out/persistence/orm-entities/ejercicio.orm-entity';
 import { EjercicioValidator } from '../application/validators/validar-nombre-ejercicio-unico.validator';
+import { ModificarEjercicioUseCase } from '../application/use-cases/modificar-ejercicio/modificar-ejercicio.use-case';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { EjercicioValidator } from '../application/validators/validar-nombre-eje
   providers: [
     // Use Cases (Escritura / Comandos)
     CrearEjercicioUseCase,
+    ModificarEjercicioUseCase,
 
     // Validators
     EjercicioValidator,
@@ -38,6 +40,7 @@ import { EjercicioValidator } from '../application/validators/validar-nombre-eje
     CrearEjercicioUseCase,
     EjercicioQueryService,
     EjercicioFinder,
+    ModificarEjercicioUseCase,
   ],
 })
 export class EjercicioModule {}

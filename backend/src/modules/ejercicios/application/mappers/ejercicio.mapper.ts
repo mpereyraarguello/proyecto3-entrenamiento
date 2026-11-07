@@ -11,6 +11,7 @@ export class EjercicioMapper {
     dto.observacion = domain.observacion;
     dto.imagenUrl = domain.imagenUrl;
     dto.createdAt = domain.createdAt.toISOString();
+    dto.updatedAt = domain.updatedAt ? domain.updatedAt.toISOString() : null;
     return dto;
   }
 }

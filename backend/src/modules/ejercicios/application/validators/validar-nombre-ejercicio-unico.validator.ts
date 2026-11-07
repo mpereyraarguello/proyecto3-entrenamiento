@@ -16,4 +16,13 @@ export class EjercicioValidator {
       throw new EjercicioYaExisteException(dto.nombre.trim());
     }
   }
+
+  async validarParaModificar(id: number, nuevoNombre: string): Promise<void> {
+    const ejercicioExistente = await this.repository.buscarPorNombre(nuevoNombre.trim());
+    
+    // Si existe Y su id es distinto al que estamos editando, entonces es duplicado
+    if (ejercicioExistente && ejercicioExistente.id !== id) {
+      throw new EjercicioYaExisteException(nuevoNombre.trim());
+    }
+  }
 }

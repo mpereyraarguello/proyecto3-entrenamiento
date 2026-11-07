@@ -1,4 +1,4 @@
-import { Controller, Post, HttpCode, HttpStatus, Body, Get, Query, Param, ParseIntPipe } from "@nestjs/common";
+import { Controller, Post, HttpCode, HttpStatus, Body, Get, Query, Param, ParseIntPipe, Patch } from "@nestjs/common";
 import { BuscarEjercicioQuery } from "src/modules/ejercicios/application/queries/buscar-ejercicio.query";
 import { EjercicioResponse } from "src/modules/ejercicios/application/responses/ejercicio.response";
 import { EjercicioQueryService } from "src/modules/ejercicios/application/services/ejercicio.query-service";
@@ -6,12 +6,16 @@ import { CrearEjercicioCommand } from "src/modules/ejercicios/application/use-ca
 import { CrearEjercicioUseCase } from "src/modules/ejercicios/application/use-cases/crear-ejercicio/crear-ejercicio.use-case";
 import { BuscarEjercicioDto } from "./dtos/buscar-ejercicio.dto";
 import { CrearEjercicioDto } from "./dtos/crear-ejercicio.dto";
+import { ModificarEjercicioCommand } from "src/modules/ejercicios/application/use-cases/modificar-ejercicio/modificar-ejercicio.command";
+import { ModificarEjercicioDto } from "./dtos/modificar-ejercicio.dto";
+import { ModificarEjercicioUseCase } from "src/modules/ejercicios/application/use-cases/modificar-ejercicio/modificar-ejercicio.use-case";
 
 @Controller('ejercicios')
 export class EjercicioController {
   constructor(
     private readonly crearEjercicioUseCase: CrearEjercicioUseCase,
     private readonly queryService: EjercicioQueryService,
+    private readonly modificarEjercicioUseCase: ModificarEjercicioUseCase,
   ) {}
 
   @Post()
@@ -48,5 +52,21 @@ export class EjercicioController {
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<EjercicioResponse> {
     return await this.queryService.findDtoById(id);
+  }
+
+  @Patch(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ModificarEjercicioDto,
+  ): Promise<EjercicioResponse> {
+    const command = new ModificarEjercicioCommand(
+      id,
+      dto.nombre,
+      dto.tipoEjercicio,
+      dto.gruposMusculares,
+      dto.observacion,
+      dto.imagenUrl,
+    );
+    return await this.modificarEjercicioUseCase.execute(command);
   }
 }

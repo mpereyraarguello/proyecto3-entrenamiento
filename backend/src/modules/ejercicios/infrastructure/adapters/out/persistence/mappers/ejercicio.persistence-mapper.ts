@@ -15,6 +15,7 @@ export class EjercicioMapper {
       observacion: orm.observacion,
       imagenUrl: orm.imagenUrl,
       createdAt: orm.createdAt,
+      updatedAt: orm.updatedAt,
     });
   }
 
@@ -29,6 +30,9 @@ export class EjercicioMapper {
     orm.observacion = domain.observacion;
     orm.imagenUrl = domain.imagenUrl;
     orm.createdAt = domain.createdAt;
+    if (domain.updatedAt) {
+      orm.updatedAt = domain.updatedAt;
+    }
     return orm;
   }
 
@@ -41,6 +45,7 @@ export class EjercicioMapper {
     dto.observacion = domain.observacion;
     dto.imagenUrl = domain.imagenUrl;
     dto.createdAt = domain.createdAt.toISOString();
+    dto.updatedAt = domain.updatedAt ? domain.updatedAt.toISOString() : null;
     return dto;
   }
 }

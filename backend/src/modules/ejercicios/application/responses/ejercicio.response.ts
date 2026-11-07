@@ -10,6 +10,7 @@ export class EjercicioResponse {
   observacion?: string | null;
   imagenUrl?: string | null;
   createdAt!: string;
+  updatedAt?: string | null;
 
   static desdeDominio(ejercicio: Ejercicio): EjercicioResponse {
     const res = new EjercicioResponse();
@@ -20,6 +21,7 @@ export class EjercicioResponse {
     res.observacion = ejercicio.observacion;
     res.imagenUrl = ejercicio.imagenUrl;
     res.createdAt = ejercicio.createdAt.toISOString();
+    res.updatedAt = ejercicio.updatedAt ? ejercicio.updatedAt.toISOString() : null;
     return res;
   }
 }
