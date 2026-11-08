@@ -12,6 +12,8 @@ import { ModificarEjercicioUseCase } from '../application/use-cases/modificar-ej
 import { EliminarEjercicioUseCase } from '../application/use-cases/eliminar-ejercicio/eliminar-ejercicio.use-case';
 import { ValidarEjercicioNoEnRutinaActivaValidator } from '../application/validators/validar-ejercicio-no-en-rutina-activa.validator';
 import { VERIFICADOR_EJERCICIO_EN_RUTINA_ACTIVA } from '../application/ports/verificador-ejercicio-en-rutina-activa.port';
+import { VerificarEjercicioEnRutinaActivaUseCase } from 'src/modules/planes-entrenamiento/application/use-cases/verificar-ejercicio-en-rutina-activa/verificar-ejercicio-en-rutina-activa.use-case';
+import { VerificadorEjercicioEnRutinaActivaAdapter } from './adapters/out/modules/verificador-ejercicio-en-rutina-activa.adapter';
 
 @Module({
   imports: [
@@ -32,10 +34,10 @@ import { VERIFICADOR_EJERCICIO_EN_RUTINA_ACTIVA } from '../application/ports/ver
       provide: EJERCICIO_REPOSITORY,
       useClass: EjercicioTypeOrmRepository,
     },
-    /*{
-      provide: VERIFICADOR_EJERCICIO_EN_RUTINA_ACTIVA,
-      useClass: VerificadorEjercicioEnRutinaActivaAdapter, //este es el que se conectaria con plan-entrenamiento
-    },*/
+    {
+      provide: VERIFICADOR_EJERCICIO_PORT,
+      useClass: VerificadorEjercicioEnRutinaActivaAdapter, //este es el que se conecta con plan-entrenamiento
+    },
   ],
   exports: [
     EJERCICIO_REPOSITORY,

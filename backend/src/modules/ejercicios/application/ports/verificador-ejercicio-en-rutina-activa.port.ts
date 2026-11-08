@@ -1,5 +1,6 @@
-export const VERIFICADOR_EJERCICIO_EN_RUTINA_ACTIVA = Symbol('VERIFICADOR_EJERCICIO_EN_RUTINA_ACTIVA');
+export const VERIFICADOR_EJERCICIO_PORT = Symbol('VerificadorEjercicioEnRutinaActiva')
 
 export interface VerificadorEjercicioEnRutinaActiva {
+    
   estaEnRutinaActiva(ejercicioId: number): Promise<boolean>;
 }

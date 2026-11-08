@@ -11,7 +11,7 @@ export class VerificarEjercicioEnRutinaActivaUseCase {
     private readonly repository: PlanEntrenamientoRepository,
   ) {}
 
-  async execute(ejercicioId: string): Promise<boolean> {
+  async execute(ejercicioId: number): Promise<boolean> {
     return this.repository.verificarSiEjercicioEstaEnPlanActivo(ejercicioId);
   }
 }

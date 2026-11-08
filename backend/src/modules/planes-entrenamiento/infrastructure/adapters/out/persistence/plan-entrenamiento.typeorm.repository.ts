@@ -15,7 +15,7 @@ export class PlanEntrenamientoTypeOrmRepository implements PlanEntrenamientoRepo
     private readonly repo: Repository<PlanEntrenamientoOrmEntity>,
   ) {}
 
-  async verificarSiEjercicioEstaEnPlanActivo(ejercicioId: string): Promise<boolean> {
+  async verificarSiEjercicioEstaEnPlanActivo(ejercicioId: number): Promise<boolean> {
     // Buscamos si el ejercicio está en algún ítem de una rutina de un plan ACTIVO
     const count = await this.repo.manager
       .createQueryBuilder(PlanEntrenamientoOrmEntity, 'plan')

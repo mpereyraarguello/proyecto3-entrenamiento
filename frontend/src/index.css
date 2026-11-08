@@ -749,6 +749,19 @@ h1, h2, h3, h4, .font-colvetica {
   align-items: center;
   gap: 0.4rem;
   transition: all 0.2s ease;
+/* Reset de márgenes del navegador para eliminar el borde blanco */
+/* Quita el borde/margen blanco de toda la pantalla */
+html, body, #root {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+  background-color: #121212 !important;
+  box-sizing: border-box !important;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box !important;
 }
 
 .btn-clear-filters:hover {
@@ -1585,3 +1598,11 @@ h1, h2, h3, h4, .font-colvetica {
   transform: none !important;
   box-shadow: none !important;
 }
+/* Carga global de la fuente Coolvetica */
+@font-face {
+  font-family: 'Coolvetica';
+  src: url('./assets/fonts/coolvetica.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}}
