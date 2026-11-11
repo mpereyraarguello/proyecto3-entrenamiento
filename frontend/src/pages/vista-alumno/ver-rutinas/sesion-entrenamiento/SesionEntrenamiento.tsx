@@ -6,19 +6,31 @@ import { useNavigate, useParams } from "react-router-dom";
 import BotonVolver from "../components-comunes/BotonVolver";
 import EncabezadoPantalla from "../components-comunes/EncabezadoPantalla";
 import MensajeEstado from "../components-comunes/MensajeEstado";
-import type { RutinaDetalle } from "../types/rutinas.types";
+import type { Ejercicio, RutinaDetalle } from "../types/rutinas.types";
 import { obtenerDetalleRutina } from "../detalle-rutina/services/detalleRutinaApi";
-import type { EjercicioSesion, RegistroEjercicio } from "./types/sesion.types";
-import { obtenerUltimaSesion, guardarSesion } from "./services/sesionApi";
+import type { EjercicioSesion, RegistroEjercicio, RegistroSerie } from "./types/sesion.types";
+import { esSerieCompleta, normalizarPeso } from "./utils/validacionSerie";
+import {
+  iniciarSesion,
+  obtenerSesionEnCurso,
+  obtenerPesoPrevio,
+  marcarBloqueSesion,
+  registrarAvanceSesion,
+  finalizarSesion,
+  type SesionBackendResponse,
+} from "./services/sesionApi";
 import SeccionEjerciciosSesion from "./components/SeccionEjerciciosSesion";
 import ModalSesionFinalizada from "./components/ModalSesionFinalizada";
+import ModalConfirmarFinalizacion from "./components/ModalConfirmarFinalizacion";
 import ProgresionSesion from "./components/ProgresionSesion";
 import PestanasSesion, { type SeccionSesionTab } from "./components/PestanasSesion";
 import SeccionCalentamientoSesion from "./components/SeccionCalentamientoSesion";
 import SeccionCardioSesion from "./components/SeccionCardioSesion";
 import SeccionEstiramientoSesion from "./components/SeccionEstiramientoSesion";
-import { agregarSesionAlHistorial } from "../historial-sesiones/services/historialApi";
 import "./SesionEntrenamiento.css";
+
+const ALUMNO_ID = "alu-1";
+const DEMORA_AUTOGUARDADO_MS = 800;
 
 const TABS_ORDER: SeccionSesionTab[] = [
   "calentamiento",
@@ -75,6 +87,17 @@ const IconoFlechaTab = () => (
   </svg>
 );
 
+// Solo se envían las series con peso y repeticiones válidos
+const construirRegistrosAvance = (registros: Record<number, RegistroEjercicio>) =>
+  Object.values(registros).map((registro) => ({
+    ejercicioId: String(registro.ejercicioId),
+    series: registro.series.filter(esSerieCompleta).map((serie) => ({
+      numeroSerie: serie.numeroSerie,
+      peso: Number(normalizarPeso(serie.peso)),
+      repeticiones: Number(serie.repeticiones.trim()),
+    })),
+  }));
+
 export default function SesionEntrenamiento() {
   const navigate = useNavigate();
   const { id: planId, idRutina } = useParams<{
@@ -85,52 +108,137 @@ export default function SesionEntrenamiento() {
   const [rutina, setRutina] = useState<RutinaDetalle | null>(null);
   const [cargando, setCargando] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
+  const [mensajeError, setMensajeError] = useState<string | null>(null);
+  const [rutinaEnCurso, setRutinaEnCurso] = useState<string | null>(null);
   const [registros, setRegistros] = useState<Record<number, RegistroEjercicio>>(
     {}
   );
   const [sesionFinalizada, setSesionFinalizada] = useState<boolean>(false);
+  const [finalizando, setFinalizando] = useState<boolean>(false);
+  const [confirmandoFinalizar, setConfirmandoFinalizar] = useState<boolean>(false);
+  const [sesionId, setSesionId] = useState<string | null>(null);
   const [tabActiva, setTabActiva] = useState<SeccionSesionTab>("calentamiento");
+  const [estadoGuardado, setEstadoGuardado] = useState<
+    "inactivo" | "guardando" | "guardado" | "error"
+  >("inactivo");
 
   // Estado de la última sesión
   const [ultimaSesionMap, setUltimaSesionMap] = useState<
     Record<number, { peso: string; repeticiones: string }>
   >({});
 
-  // Cargar rutina y última sesión
+  // Bloques marcados sin registrar pesos ni repeticiones (HU 4A)
+  const [calentamientoCompletado, setCalentamientoCompletado] =
+    useState<boolean>(false);
+  const [cardioCompletado, setCardioCompletado] = useState<boolean>(false);
+  const [tieneCardio, setTieneCardio] = useState<boolean>(false);
+  const [estiramientoCompletado, setEstiramientoCompletado] =
+    useState<boolean>(false);
+
+  const cargaSesion = useRef<Promise<SesionBackendResponse> | null>(null);
+  const ultimoEnviado = useRef<string>("");
+  const temporizadorGuardado = useRef<number | null>(null);
+  const colaGuardado = useRef<Promise<void>>(Promise.resolve());
+
+  // Cargar rutina y sesión backend
   useEffect(() => {
     if (!idRutina) return;
 
-    Promise.all([obtenerDetalleRutina(idRutina), obtenerUltimaSesion(idRutina)])
-      .then(([rutinaData, ultimaSesionData]) => {
-        if (rutinaData) {
-          setRutina(rutinaData);
+    const rutinaIdStr = String(idRutina);
+    setCargando(true);
+    setError(false);
+    setMensajeError(null);
+    setRutinaEnCurso(null);
 
-          const map: Record<number, { peso: string; repeticiones: string }> = {};
-          ultimaSesionData.forEach((us) => {
-            map[us.ejercicioId] = { peso: us.peso, repeticiones: us.repeticiones };
+    const cargarSesion = async () => {
+      const rutinaData = await obtenerDetalleRutina(idRutina);
+      if (!rutinaData) {
+        setError(true);
+        return;
+      }
+      setRutina(rutinaData);
+
+      // 1. Recuperar la sesión en curso o iniciar una nueva (HU 1A)
+      // La petición se comparte para no crear dos sesiones si el efecto corre dos veces
+      if (!cargaSesion.current) {
+        cargaSesion.current = obtenerSesionEnCurso(ALUMNO_ID)
+          .then((enCurso) => enCurso ?? iniciarSesion(ALUMNO_ID, rutinaIdStr))
+          .finally(() => {
+            cargaSesion.current = null;
           });
-          setUltimaSesionMap(map);
+      }
+      const sesionBackend = await cargaSesion.current;
 
-          // Inicializar registros para ejercicios de core y fuerza
-          const ejerciciosRegistrables = [
-            ...rutinaData.core,
-            ...rutinaData.fuerza,
-          ];
-          const registrosIniciales: Record<number, RegistroEjercicio> = {};
-          ejerciciosRegistrables.forEach((ej) => {
-            registrosIniciales[ej.id] = {
-              ejercicioId: ej.id,
-              peso: "",
-              repeticiones: "",
-              completado: false,
+      if (String(sesionBackend.rutinaId) !== rutinaIdStr) {
+        setRutinaEnCurso(String(sesionBackend.rutinaId));
+        setMensajeError(
+          `Ya tenés una sesión en curso de la Rutina N° ${sesionBackend.rutinaNumero}. Terminala antes de iniciar otra.`
+        );
+        setError(true);
+        return;
+      }
+
+      setSesionId(sesionBackend.id);
+      setCalentamientoCompletado(sesionBackend.bloqueCalentamientoCompletado);
+      setTieneCardio(sesionBackend.bloqueCardioCompletado !== null);
+      setCardioCompletado(sesionBackend.bloqueCardioCompletado === true);
+      setEstiramientoCompletado(sesionBackend.bloqueEstiramientoCompletado);
+
+      const ejerciciosRegistrables = [...rutinaData.core, ...rutinaData.fuerza];
+
+      // 2. Consultar pesos previos: si no hay registro no se muestra nada (CP-1A-04)
+      const mapPrevios: Record<number, { peso: string; repeticiones: string }> = {};
+      await Promise.all(
+        ejerciciosRegistrables.map(async (ej) => {
+          const previo = await obtenerPesoPrevio(ALUMNO_ID, ej.id);
+          if (previo && previo.peso !== null) {
+            mapPrevios[ej.id] = {
+              peso: `${previo.peso} kg`,
+              repeticiones:
+                previo.repeticiones !== null ? String(previo.repeticiones) : "-",
             };
-          });
-          setRegistros(registrosIniciales);
-        } else {
-          setError(true);
-        }
-      })
-      .catch(() => {
+          }
+        })
+      );
+      setUltimaSesionMap(mapPrevios);
+
+      // 3. Restaurar lo guardado, con una fila por cada serie planificada (CP-1A-01, CP-1A-05)
+      const registrosIniciales: Record<number, RegistroEjercicio> = {};
+      ejerciciosRegistrables.forEach((ej) => {
+        const ejGuardado = sesionBackend.ejercicios.find(
+          (item) => String(item.ejercicioId) === String(ej.id)
+        );
+        const cantidadSeries = ejGuardado?.seriesPlanificadas ?? 1;
+        const series: RegistroSerie[] = Array.from(
+          { length: cantidadSeries },
+          (_, indice) => {
+            const numeroSerie = indice + 1;
+            const guardada = ejGuardado?.series.find(
+              (serie) => serie.numeroSerie === numeroSerie
+            );
+            return {
+              numeroSerie,
+              peso: guardada ? String(guardada.peso) : "",
+              repeticiones: guardada ? String(guardada.repeticiones) : "",
+            };
+          }
+        );
+
+        registrosIniciales[ej.id] = {
+          ejercicioId: ej.id,
+          series,
+          completado: series.every(esSerieCompleta),
+        };
+      });
+      ultimoEnviado.current = JSON.stringify(
+        construirRegistrosAvance(registrosIniciales)
+      );
+      setRegistros(registrosIniciales);
+    };
+
+    cargarSesion()
+      .catch((err: unknown) => {
+        setMensajeError(err instanceof Error ? err.message : null);
         setError(true);
       })
       .finally(() => {
@@ -138,64 +246,33 @@ export default function SesionEntrenamiento() {
       });
   }, [idRutina]);
 
-  // Construir ejercicios de sesión con datos combinados
-  const ejerciciosCore: EjercicioSesion[] = useMemo(() => {
-    if (!rutina) return [];
-    return rutina.core.map((ej) => {
-      const reg = registros[ej.id] || {
-        ejercicioId: ej.id,
-        peso: "",
-        repeticiones: "",
-        completado: false,
-      };
-      const completado = Boolean(
-        reg.peso &&
-          reg.peso.trim().length > 0 &&
-          reg.repeticiones &&
-          reg.repeticiones.trim().length > 0
-      );
-      return {
+  const combinarConRegistros = useCallback(
+    (ejercicios: Ejercicio[]): EjercicioSesion[] =>
+      ejercicios.map((ej) => ({
         ...ej,
         ultimaSesion: ultimaSesionMap[ej.id]
           ? { ejercicioId: ej.id, ...ultimaSesionMap[ej.id] }
           : undefined,
-        registro: {
-          ...reg,
-          completado,
+        registro: registros[ej.id] ?? {
+          ejercicioId: ej.id,
+          series: [],
+          completado: false,
         },
-      };
-    });
-  }, [rutina, registros, ultimaSesionMap]);
+      })),
+    [registros, ultimaSesionMap]
+  );
 
-  const ejerciciosFuerza: EjercicioSesion[] = useMemo(() => {
-    if (!rutina) return [];
-    return rutina.fuerza.map((ej) => {
-      const reg = registros[ej.id] || {
-        ejercicioId: ej.id,
-        peso: "",
-        repeticiones: "",
-        completado: false,
-      };
-      const completado = Boolean(
-        reg.peso &&
-          reg.peso.trim().length > 0 &&
-          reg.repeticiones &&
-          reg.repeticiones.trim().length > 0
-      );
-      return {
-        ...ej,
-        ultimaSesion: ultimaSesionMap[ej.id]
-          ? { ejercicioId: ej.id, ...ultimaSesionMap[ej.id] }
-          : undefined,
-        registro: {
-          ...reg,
-          completado,
-        },
-      };
-    });
-  }, [rutina, registros, ultimaSesionMap]);
+  const ejerciciosCore = useMemo(
+    () => combinarConRegistros(rutina?.core ?? []),
+    [rutina, combinarConRegistros]
+  );
 
-  // Calentamiento (ahora obligatorio, un solo tilde para todo el bloque)
+  const ejerciciosFuerza = useMemo(
+    () => combinarConRegistros(rutina?.fuerza ?? []),
+    [rutina, combinarConRegistros]
+  );
+
+  // Calentamiento (obligatorio, un solo tilde para todo el bloque)
   const itemsCalentamiento = useMemo(() => {
     if (!rutina || !rutina.calentamiento) return [];
     return rutina.calentamiento
@@ -207,56 +284,78 @@ export default function SesionEntrenamiento() {
       .filter((item) => item.nombre.length > 0);
   }, [rutina]);
 
-  const [calentamientoCompletado, setCalentamientoCompletado] =
-    useState<boolean>(false);
+  const guardarAvance = useCallback(
+    (datos: Record<number, RegistroEjercicio>): Promise<void> => {
+      if (!sesionId) return Promise.resolve();
+      const registrosAvance = construirRegistrosAvance(datos);
+      const serializado = JSON.stringify(registrosAvance);
+      if (serializado === ultimoEnviado.current) return colaGuardado.current;
 
-  // Cardio y Estiramiento (opcionales, tilde único por sección)
-  const [cardioCompletado, setCardioCompletado] = useState<boolean>(false);
-  const [estiramientoCompletado, setEstiramientoCompletado] =
-    useState<boolean>(false);
-
-  const handleToggleCalentamiento = useCallback(() => {
-    setCalentamientoCompletado((prev) => !prev);
-  }, []);
-
-  const handleToggleCardio = useCallback(() => {
-    setCardioCompletado((prev) => !prev);
-  }, []);
-
-  const handleToggleEstiramiento = useCallback(() => {
-    setEstiramientoCompletado((prev) => !prev);
-  }, []);
-
-  // Conteo de ejercicios de Core y Fuerza completados (únicamente al ingresar peso y repeticiones)
-  const coreCompletados = useMemo(
-    () =>
-      ejerciciosCore.filter(
-        (ej) =>
-          ej.registro.peso.trim().length > 0 &&
-          ej.registro.repeticiones.trim().length > 0
-      ).length,
-    [ejerciciosCore]
+      ultimoEnviado.current = serializado;
+      setEstadoGuardado("guardando");
+      colaGuardado.current = colaGuardado.current
+        .then(() => registrarAvanceSesion(sesionId, ALUMNO_ID, registrosAvance))
+        .then(() => setEstadoGuardado("guardado"))
+        .catch(() => {
+          ultimoEnviado.current = "";
+          setEstadoGuardado("error");
+        });
+      return colaGuardado.current;
+    },
+    [sesionId]
   );
 
-  const fuerzaCompletados = useMemo(
-    () =>
-      ejerciciosFuerza.filter(
-        (ej) =>
-          ej.registro.peso.trim().length > 0 &&
-          ej.registro.repeticiones.trim().length > 0
-      ).length,
-    [ejerciciosFuerza]
+  const cancelarAutoguardado = () => {
+    if (temporizadorGuardado.current !== null) {
+      window.clearTimeout(temporizadorGuardado.current);
+      temporizadorGuardado.current = null;
+    }
+  };
+
+  // Autoguardado para no perder datos al salir de la pantalla (CP-1A-05)
+  useEffect(() => {
+    if (!sesionId || sesionFinalizada) return;
+    temporizadorGuardado.current = window.setTimeout(() => {
+      void guardarAvance(registros);
+    }, DEMORA_AUTOGUARDADO_MS);
+    return cancelarAutoguardado;
+  }, [registros, sesionId, sesionFinalizada, guardarAvance]);
+
+  const alternarBloque = useCallback(
+    (
+      bloque: "CALENTAMIENTO" | "CARDIO" | "ESTIRAMIENTO",
+      actual: boolean,
+      actualizar: (valor: boolean) => void
+    ) => {
+      if (!sesionId) return;
+      const nuevo = !actual;
+      actualizar(nuevo);
+      marcarBloqueSesion(sesionId, ALUMNO_ID, bloque, nuevo).catch(() => {
+        actualizar(actual);
+        setEstadoGuardado("error");
+      });
+    },
+    [sesionId]
   );
 
-  // Verificación de obligatorios: Calentamiento tildado + todo Core y Fuerza con peso y reps
-  const coreCumplido =
-    ejerciciosCore.length === 0 || coreCompletados === ejerciciosCore.length;
-  const fuerzaCumplido =
-    ejerciciosFuerza.length === 0 || fuerzaCompletados === ejerciciosFuerza.length;
-  const calentamientoCumplido = Boolean(calentamientoCompletado);
+  const handleToggleCalentamiento = () =>
+    alternarBloque("CALENTAMIENTO", calentamientoCompletado, setCalentamientoCompletado);
+  const handleToggleCardio = () =>
+    alternarBloque("CARDIO", cardioCompletado, setCardioCompletado);
+  const handleToggleEstiramiento = () =>
+    alternarBloque("ESTIRAMIENTO", estiramientoCompletado, setEstiramientoCompletado);
 
-  const todosCompletados =
-    calentamientoCumplido && coreCumplido && fuerzaCumplido;
+  const coreCompletados = ejerciciosCore.filter((ej) => ej.registro.completado).length;
+  const fuerzaCompletados = ejerciciosFuerza.filter((ej) => ej.registro.completado).length;
+
+  // Obligatorios: calentamiento y todas las series de core y fuerza
+  const pendientes = [
+    ...(calentamientoCompletado ? [] : ["Calentamiento"]),
+    ...[...ejerciciosCore, ...ejerciciosFuerza]
+      .filter((ej) => !ej.registro.completado)
+      .map((ej) => ej.nombre),
+  ];
+  const todosCompletados = pendientes.length === 0;
 
   // Progreso general considerando los bloques obligatorios: 1 (calentamiento) + N (core) + M (fuerza)
   const totalObligatorios =
@@ -353,44 +452,25 @@ export default function SesionEntrenamiento() {
     touchStartY.current = null;
   };
 
-  // Handlers para actualizar peso y repeticiones (el completado se actualiza de inmediato)
-  const handleCambiarPeso = useCallback(
-    (ejercicioId: number, peso: string) => {
+  const handleCambiarSerie = useCallback(
+    (
+      ejercicioId: number,
+      numeroSerie: number,
+      campo: "peso" | "repeticiones",
+      valor: string
+    ) => {
       setRegistros((prev) => {
-        const actual = prev[ejercicioId] || {
-          ejercicioId,
-          peso: "",
-          repeticiones: "",
-          completado: false,
-        };
-        const nuevoCompletado =
-          peso.trim().length > 0 && actual.repeticiones.trim().length > 0;
-        return {
-          ...prev,
-          [ejercicioId]: { ...actual, peso, completado: nuevoCompletado },
-        };
-      });
-    },
-    []
-  );
-
-  const handleCambiarRepeticiones = useCallback(
-    (ejercicioId: number, repeticiones: string) => {
-      setRegistros((prev) => {
-        const actual = prev[ejercicioId] || {
-          ejercicioId,
-          peso: "",
-          repeticiones: "",
-          completado: false,
-        };
-        const nuevoCompletado =
-          actual.peso.trim().length > 0 && repeticiones.trim().length > 0;
+        const actual = prev[ejercicioId];
+        if (!actual) return prev;
+        const series = actual.series.map((serie) =>
+          serie.numeroSerie === numeroSerie ? { ...serie, [campo]: valor } : serie
+        );
         return {
           ...prev,
           [ejercicioId]: {
             ...actual,
-            repeticiones,
-            completado: nuevoCompletado,
+            series,
+            completado: series.every(esSerieCompleta),
           },
         };
       });
@@ -398,109 +478,60 @@ export default function SesionEntrenamiento() {
     []
   );
 
-  const handleFinalizar = () => {
-    if (!todosCompletados || !rutina) return;
+  const handleGuardarAvance = async () => {
+    cancelarAutoguardado();
+    await guardarAvance(registros);
+    setEstadoGuardado((actual) => (actual === "error" ? actual : "guardado"));
+  };
 
-    const registrosArray = Object.values(registros).map((r) => ({
-      ejercicioId: r.ejercicioId,
-      peso: r.peso,
-      repeticiones: r.repeticiones,
-    }));
+  const handleFinalizar = async () => {
+    if (!todosCompletados || !sesionId || finalizando) return;
+    setConfirmandoFinalizar(false);
+    setFinalizando(true);
+    cancelarAutoguardado();
 
-    const ahora = new Date();
-    const fechaFormateada = `${ahora.toLocaleDateString("es-AR")} - ${ahora.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })} hs`;
-
-    // Armar lista de ejercicios completa para el historial:
-    // Calentamiento (obligatorio, conjunto único que siempre se registra como Realizado) + Core + Fuerza + Cardio (opcional) + Estiramiento (opcional)
-    const calentamientoHistorial = [
-      {
-        ejercicioId: "cal-conjunto",
-        nombre: "Calentamiento y Movilidad Articular",
-        categoria: "calentamiento",
-        series: `${itemsCalentamiento.length} ejercicios de preparación articular`,
-        completado: true,
-      },
-    ];
-
-    const coreHistorial = ejerciciosCore.map((ej) => ({
-      ejercicioId: ej.id,
-      nombre: ej.nombre,
-      categoria: "core",
-      peso: registros[ej.id]?.peso || "-",
-      repeticiones: registros[ej.id]?.repeticiones || "-",
-      series: ej.seriesRepeticiones,
-      completado: Boolean(
-        registros[ej.id]?.peso.trim() && registros[ej.id]?.repeticiones.trim()
-      ),
-    }));
-
-    const fuerzaHistorial = ejerciciosFuerza.map((ej) => ({
-      ejercicioId: ej.id,
-      nombre: ej.nombre,
-      categoria: "fuerza",
-      peso: registros[ej.id]?.peso || "-",
-      repeticiones: registros[ej.id]?.repeticiones || "-",
-      series: ej.seriesRepeticiones,
-      completado: Boolean(
-        registros[ej.id]?.peso.trim() && registros[ej.id]?.repeticiones.trim()
-      ),
-    }));
-
-    const cardioHistorial = rutina.cardio
-      ? [
-          {
-            ejercicioId: "car-1",
-            nombre: "Entrenamiento Cardiovascular",
-            categoria: "cardio",
-            series: rutina.cardio,
-            completado: Boolean(cardioCompletado),
-          },
-        ]
-      : [];
-
-    const estiramientoHistorial = [
-      {
-        ejercicioId: "est-1",
-        nombre: "Elongación y vuelta a la calma",
-        categoria: "estiramiento",
-        series: rutina.estiramiento?.descripcion || "Elongación muscular",
-        completado: Boolean(estiramientoCompletado),
-      },
-    ];
-
-    const ejerciciosHistorial = [
-      ...calentamientoHistorial,
-      ...coreHistorial,
-      ...fuerzaHistorial,
-      ...cardioHistorial,
-      ...estiramientoHistorial,
-    ];
-
-    Promise.all([
-      guardarSesion(rutina.id, registrosArray),
-      agregarSesionAlHistorial({
-        fecha: fechaFormateada,
-        planId: Number(planId) || 22,
-        planNumero: Number(planId) || 22,
-        rutinaId: rutina.id,
-        rutinaNumero: rutina.numero,
-        rutinaNombre: `Rutina ${rutina.numero}`,
-        duracionEstimada: "45 min",
-        totalEjercicios: ejerciciosHistorial.length,
-        ejerciciosCompletados: ejerciciosHistorial,
-      }),
-    ]).then(() => {
+    try {
+      await colaGuardado.current;
+      await registrarAvanceSesion(
+        sesionId,
+        ALUMNO_ID,
+        construirRegistrosAvance(registros),
+        { calentamientoCompletado, cardioCompletado, estiramientoCompletado }
+      );
+      await finalizarSesion(sesionId, ALUMNO_ID);
       setSesionFinalizada(true);
-    });
+    } catch (err) {
+      console.error("Error al finalizar sesión:", err);
+      alert(
+        err instanceof Error
+          ? err.message
+          : "No se pudo finalizar la sesión. Verificá que todos los ejercicios obligatorios estén completos."
+      );
+    } finally {
+      setFinalizando(false);
+    }
   };
 
   const handleVolver = () => {
     navigate(`/planes/${planId || 1}/rutinas`);
   };
 
-  const handleVolverADetalle = () => {
+  const handleVolverADetalle = async () => {
+    cancelarAutoguardado();
+    await guardarAvance(registros);
     navigate(`/planes/${planId || 1}/rutinas/${idRutina}`);
   };
+
+  const handleContinuarSesionEnCurso = () => {
+    navigate(`/planes/${planId || 1}/rutinas/${rutinaEnCurso}/sesion`);
+  };
+
+  const textoGuardado = {
+    inactivo: "",
+    guardando: "Guardando avance...",
+    guardado: "Avance guardado",
+    error: "No se pudo guardar el último cambio. Intentá de nuevo.",
+  }[estadoGuardado];
 
   return (
     <main className="detalle-rutina">
@@ -529,9 +560,11 @@ export default function SesionEntrenamiento() {
         {error && !cargando && (
           <MensajeEstado
             tipo="error"
-            mensaje="No se pudo cargar la rutina para iniciar la sesion."
-            onAccion={handleVolver}
-            textoAccion="Volver"
+            mensaje={
+              mensajeError ?? "No se pudo cargar la rutina para iniciar la sesion."
+            }
+            onAccion={rutinaEnCurso ? handleContinuarSesionEnCurso : handleVolver}
+            textoAccion={rutinaEnCurso ? "Continuar sesión en curso" : "Volver"}
           />
         )}
 
@@ -618,8 +651,7 @@ export default function SesionEntrenamiento() {
                       <SeccionEjerciciosSesion
                         titulo="Core"
                         ejercicios={ejerciciosCore}
-                        onCambiarPeso={handleCambiarPeso}
-                        onCambiarRepeticiones={handleCambiarRepeticiones}
+                        onCambiarSerie={handleCambiarSerie}
                       />
                       <button
                         type="button"
@@ -646,8 +678,7 @@ export default function SesionEntrenamiento() {
                       <SeccionEjerciciosSesion
                         titulo="Fuerza"
                         ejercicios={ejerciciosFuerza}
-                        onCambiarPeso={handleCambiarPeso}
-                        onCambiarRepeticiones={handleCambiarRepeticiones}
+                        onCambiarSerie={handleCambiarSerie}
                       />
                       <button
                         type="button"
@@ -672,7 +703,7 @@ export default function SesionEntrenamiento() {
                   >
                     <div className="sesion__tab-bloque">
                       <SeccionCardioSesion
-                        cardio={rutina.cardio}
+                        cardio={tieneCardio ? rutina.cardio : ""}
                         completado={cardioCompletado}
                         onToggleCompletado={handleToggleCardio}
                       />
@@ -729,17 +760,24 @@ export default function SesionEntrenamiento() {
             <div className="sesion__acciones">
               {!todosCompletados && (
                 <p className="sesion__mensaje-requisito">
-                  Completá el Calentamiento y registrá peso y repeticiones en todos los ejercicios de Core y Fuerza para poder finalizar la sesión. Cardio y Estiramiento son opcionales.
+                  Para finalizar falta completar: {pendientes.join(", ")}. Cardio y Estiramiento son opcionales.
                 </p>
               )}
               <button
                 type="button"
                 className="sesion__boton-finalizar"
-                disabled={!todosCompletados}
-                onClick={handleFinalizar}
+                disabled={!todosCompletados || finalizando}
+                onClick={() => setConfirmandoFinalizar(true)}
               >
                 <IconoFinalizar />
-                Finalizar
+                {finalizando ? "Finalizando..." : "Finalizar"}
+              </button>
+              <button
+                type="button"
+                className="sesion__boton-cancelar"
+                onClick={handleGuardarAvance}
+              >
+                Guardar avance
               </button>
               <button
                 type="button"
@@ -748,10 +786,22 @@ export default function SesionEntrenamiento() {
               >
                 Cancelar
               </button>
+              {textoGuardado && (
+                <p className="sesion__estado-guardado" role="status">
+                  {textoGuardado}
+                </p>
+              )}
             </div>
           </div>
         )}
       </div>
+
+      {confirmandoFinalizar && (
+        <ModalConfirmarFinalizacion
+          onConfirmar={handleFinalizar}
+          onCancelar={() => setConfirmandoFinalizar(false)}
+        />
+      )}
 
       {/* Modal de sesion finalizada */}
       {sesionFinalizada && rutina && (

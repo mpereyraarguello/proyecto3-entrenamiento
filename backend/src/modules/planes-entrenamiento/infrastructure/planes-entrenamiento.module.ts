@@ -49,7 +49,8 @@ import { VerificarEjercicioEnRutinaActivaUseCase } from '../application/use-case
     VerificarEjercicioEnRutinaActivaUseCase,
   ],
   exports: [
-    VerificarEjercicioEnRutinaActivaUseCase
-  ]
+    PLAN_ENTRENAMIENTO_REPOSITORY,
+    VerificarEjercicioEnRutinaActivaUseCase,
+  ],
 })
 export class PlanesEntrenamientoModule {}

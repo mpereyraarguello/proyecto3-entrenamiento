@@ -1,13 +1,18 @@
 // EjercicioSesionItem.tsx
 // Componente para cada ejercicio durante la sesión, permite registrar peso y repeticiones
-// Se considera completado automáticamente cuando se cargan peso y repeticiones.
+// Se considera completado automáticamente cuando se cargan todas sus series.
 
 import type { EjercicioSesion } from "../types/sesion.types";
+import { esPesoValido, esRepeticionesValidas } from "../utils/validacionSerie";
 
 interface EjercicioSesionItemProps {
   ejercicioSesion: EjercicioSesion;
-  onCambiarPeso: (ejercicioId: number, peso: string) => void;
-  onCambiarRepeticiones: (ejercicioId: number, reps: string) => void;
+  onCambiarSerie: (
+    ejercicioId: number,
+    numeroSerie: number,
+    campo: "peso" | "repeticiones",
+    valor: string
+  ) => void;
 }
 
 const IconoCheck = () => (
@@ -28,18 +33,11 @@ const IconoCheck = () => (
 
 export default function EjercicioSesionItem({
   ejercicioSesion,
-  onCambiarPeso,
-  onCambiarRepeticiones,
+  onCambiarSerie,
 }: EjercicioSesionItemProps) {
   const { registro, ultimaSesion } = ejercicioSesion;
 
-  // Un ejercicio de core/fuerza se cumple únicamente cuando tiene ingresados peso y repeticiones
-  const cumplido = Boolean(
-    registro.peso &&
-      registro.peso.trim().length > 0 &&
-      registro.repeticiones &&
-      registro.repeticiones.trim().length > 0
-  );
+  const cumplido = registro.completado;
 
   return (
     <article
@@ -50,11 +48,9 @@ export default function EjercicioSesionItem({
       <div className="sesion__ejercicio-header">
         <div className="sesion__ejercicio-info">
           <h3 className="sesion__ejercicio-nombre">{ejercicioSesion.nombre}</h3>
-          {ejercicioSesion.seriesRepeticiones && (
-            <span className="sesion__ejercicio-series">
-              {ejercicioSesion.seriesRepeticiones}
-            </span>
-          )}
+          <span className="sesion__ejercicio-series">
+            {registro.series.length} series planificadas
+          </span>
         </div>
 
         {/* Indicador automático de estado (sin botón de tilde manual) */}
@@ -66,8 +62,8 @@ export default function EjercicioSesionItem({
           }`}
           title={
             cumplido
-              ? "Completado (peso y repeticiones ingresados)"
-              : "Ingresá peso y repeticiones para cumplir este ejercicio"
+              ? "Completado (todas las series registradas)"
+              : "Ingresá peso y repeticiones en cada serie"
           }
         >
           {cumplido ? (
@@ -110,47 +106,67 @@ export default function EjercicioSesionItem({
         </div>
       )}
 
-      <div className="sesion__campos-registro">
-        <div className="sesion__campo">
-          <label
-            className="sesion__campo-label"
-            htmlFor={`peso-${ejercicioSesion.id}`}
-          >
-            Peso utilizado
-          </label>
-          <input
-            id={`peso-${ejercicioSesion.id}`}
-            type="text"
-            inputMode="decimal"
-            autoComplete="off"
-            className="sesion__campo-input"
-            placeholder="Ej: 40 kg"
-            value={registro.peso}
-            onChange={(e) => onCambiarPeso(ejercicioSesion.id, e.target.value)}
-          />
-        </div>
-        <div className="sesion__campo">
-          <label
-            className="sesion__campo-label"
-            htmlFor={`reps-${ejercicioSesion.id}`}
-          >
-            Repeticiones
-          </label>
-          <input
-            id={`reps-${ejercicioSesion.id}`}
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            autoComplete="off"
-            className="sesion__campo-input"
-            placeholder="Ej: 12"
-            value={registro.repeticiones}
-            onChange={(e) =>
-              onCambiarRepeticiones(ejercicioSesion.id, e.target.value)
-            }
-          />
-        </div>
-      </div>
+      {registro.series.map((serie) => {
+        const claveSerie = `${ejercicioSesion.id}-${serie.numeroSerie}`;
+        const pesoInvalido = serie.peso.trim() !== "" && !esPesoValido(serie.peso);
+        const repeticionesInvalidas =
+          serie.repeticiones.trim() !== "" &&
+          !esRepeticionesValidas(serie.repeticiones);
+
+        return (
+          <div key={claveSerie} className="sesion__serie-registro">
+            <span className="sesion__serie-titulo">Serie {serie.numeroSerie}</span>
+            <div className="sesion__campos-registro">
+              <div className="sesion__campo">
+                <label className="sesion__campo-label" htmlFor={`peso-${claveSerie}`}>
+                  Peso (kg)
+                </label>
+                <input
+                  id={`peso-${claveSerie}`}
+                  type="text"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  className="sesion__campo-input"
+                  placeholder="Ej: 40"
+                  aria-invalid={pesoInvalido}
+                  value={serie.peso}
+                  onChange={(e) =>
+                    onCambiarSerie(ejercicioSesion.id, serie.numeroSerie, "peso", e.target.value)
+                  }
+                />
+                {pesoInvalido && (
+                  <span className="sesion__campo-error">
+                    Ingresá un número mayor o igual a cero.
+                  </span>
+                )}
+              </div>
+              <div className="sesion__campo">
+                <label className="sesion__campo-label" htmlFor={`reps-${claveSerie}`}>
+                  Repeticiones
+                </label>
+                <input
+                  id={`reps-${claveSerie}`}
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  className="sesion__campo-input"
+                  placeholder="Ej: 12"
+                  aria-invalid={repeticionesInvalidas}
+                  value={serie.repeticiones}
+                  onChange={(e) =>
+                    onCambiarSerie(ejercicioSesion.id, serie.numeroSerie, "repeticiones", e.target.value)
+                  }
+                />
+                {repeticionesInvalidas && (
+                  <span className="sesion__campo-error">
+                    Ingresá un número entero mayor o igual a cero.
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </article>
   );
 }

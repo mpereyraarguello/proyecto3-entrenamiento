@@ -7,27 +7,22 @@ import EjercicioSesionItem from "./EjercicioSesionItem";
 interface SeccionEjerciciosSesionProps {
   titulo: string;
   ejercicios: EjercicioSesion[];
-  onCambiarPeso: (ejercicioId: number, peso: string) => void;
-  onCambiarRepeticiones: (ejercicioId: number, reps: string) => void;
+  onCambiarSerie: (
+    ejercicioId: number,
+    numeroSerie: number,
+    campo: "peso" | "repeticiones",
+    valor: string
+  ) => void;
 }
 
 export default function SeccionEjerciciosSesion({
   titulo,
   ejercicios,
-  onCambiarPeso,
-  onCambiarRepeticiones,
+  onCambiarSerie,
 }: SeccionEjerciciosSesionProps) {
   if (!ejercicios || ejercicios.length === 0) return null;
 
-  const completados = ejercicios.filter(
-    (ej) =>
-      Boolean(
-        ej.registro.peso &&
-          ej.registro.peso.trim().length > 0 &&
-          ej.registro.repeticiones &&
-          ej.registro.repeticiones.trim().length > 0
-      )
-  ).length;
+  const completados = ejercicios.filter((ej) => ej.registro.completado).length;
   const total = ejercicios.length;
   const todosListos = total > 0 && completados === total;
 
@@ -50,8 +45,7 @@ export default function SeccionEjerciciosSesion({
           <EjercicioSesionItem
             key={ej.id}
             ejercicioSesion={ej}
-            onCambiarPeso={onCambiarPeso}
-            onCambiarRepeticiones={onCambiarRepeticiones}
+            onCambiarSerie={onCambiarSerie}
           />
         ))}
       </div>

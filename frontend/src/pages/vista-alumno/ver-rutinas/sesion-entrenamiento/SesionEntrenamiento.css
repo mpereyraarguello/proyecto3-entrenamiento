@@ -1093,3 +1093,41 @@
   }
 }
 
+/* Registro por serie */
+.sesion__serie-registro {
+  margin-top: 12px;
+  width: 100%;
+}
+
+.sesion__serie-titulo {
+  color: var(--color-subtext, #6e8b7e);
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.sesion__serie-registro .sesion__campos-registro {
+  margin-top: 6px;
+}
+
+.sesion__campo-error {
+  color: #ff8a80;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+.sesion__estado-guardado {
+  color: var(--color-subtext, #6e8b7e);
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.8rem;
+  margin: 0;
+  text-align: center;
+}
+
+.sesion__modal-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}

@@ -7,7 +7,11 @@ import BotonVolver from "../components-comunes/BotonVolver";
 import EncabezadoPantalla from "../components-comunes/EncabezadoPantalla";
 import MensajeEstado from "../components-comunes/MensajeEstado";
 import type { SesionHistorial } from "./types/historial.types";
-import { obtenerHistorialSesiones } from "./services/historialApi";
+import {
+  obtenerHistorialPlan,
+  obtenerPlanesConHistorial,
+  type PlanConHistorial,
+} from "./services/historialApi";
 import HistorialSesionCard from "./components/HistorialSesionCard";
 import "./HistorialSesiones.css";
 
@@ -48,31 +52,45 @@ const IconoPesaSmall = () => (
   </svg>
 );
 
+const ALUMNO_ID = "alu-1";
+
 export default function HistorialSesiones() {
   const navigate = useNavigate();
   const { id: planId } = useParams<{ id?: string }>();
 
   const [sesiones, setSesiones] = useState<SesionHistorial[]>([]);
+  const [totalSesiones, setTotalSesiones] = useState<number>(0);
+  const [totalEjerciciosCompletados, setTotalEjerciciosCompletados] = useState<number>(0);
   const [cargando, setCargando] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
+  const [planes, setPlanes] = useState<PlanConHistorial[]>([]);
 
   useEffect(() => {
-    obtenerHistorialSesiones()
-      .then((data) => {
-        setSesiones(data);
-      })
-      .catch(() => {
-        setError(true);
-      })
-      .finally(() => {
-        setCargando(false);
-      });
-  }, []);
+    const cargarHistorial = async () => {
+      setCargando(true);
+      setError(false);
 
-  const totalEjerciciosCompletados = sesiones.reduce(
-    (acc, s) => acc + s.ejerciciosCompletados.length,
-    0
-  );
+      const planesConHistorial = await obtenerPlanesConHistorial(ALUMNO_ID);
+      setPlanes(planesConHistorial);
+
+      const planConsultado = planId ?? planesConHistorial[0]?.planId;
+      if (!planConsultado) {
+        setSesiones([]);
+        setTotalSesiones(0);
+        setTotalEjerciciosCompletados(0);
+        return;
+      }
+
+      const data = await obtenerHistorialPlan(ALUMNO_ID, planConsultado);
+      setSesiones(data.sesiones);
+      setTotalSesiones(data.totalSesiones);
+      setTotalEjerciciosCompletados(data.totalEjerciciosCompletados);
+    };
+
+    cargarHistorial()
+      .catch(() => setError(true))
+      .finally(() => setCargando(false));
+  }, [planId]);
 
   const handleVolver = () => {
     if (planId) {
@@ -112,10 +130,29 @@ export default function HistorialSesiones() {
 
         {!cargando && !error && (
           <div className="historial__contenido">
+            {planes.length > 0 && (
+              <label className="historial__selector-plan">
+                <span>Plan de entrenamiento</span>
+                <select
+                  value={planId ?? planes[0].planId}
+                  onChange={(e) => navigate(`/planes/${e.target.value}/historial`)}
+                >
+                  {planId && !planes.some((plan) => plan.planId === planId) && (
+                    <option value={planId}>Plan actual (sin sesiones)</option>
+                  )}
+                  {planes.map((plan) => (
+                    <option key={plan.planId} value={plan.planId}>
+                      {plan.etiqueta}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+
             {/* Resumen numérico */}
             <section className="historial__resumen-grid" aria-label="Métricas del historial">
               <div className="historial__resumen-card">
-                <span className="historial__resumen-numero">{sesiones.length}</span>
+                <span className="historial__resumen-numero">{totalSesiones}</span>
                 <span className="historial__resumen-label">Sesiones totales</span>
               </div>
               <div className="historial__resumen-card">

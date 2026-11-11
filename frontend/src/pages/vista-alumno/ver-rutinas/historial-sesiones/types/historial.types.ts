@@ -28,5 +28,6 @@ export interface SesionHistorial {
   rutinaNombre: string;
   duracionEstimada?: string;
   totalEjercicios: number;
+  totalEjerciciosCompletados: number;
   ejerciciosCompletados: EjercicioHistorial[];
 }

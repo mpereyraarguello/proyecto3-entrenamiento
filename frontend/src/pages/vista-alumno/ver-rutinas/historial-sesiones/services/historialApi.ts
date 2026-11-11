@@ -1,247 +1,165 @@
 // historialApi.ts
-// Servicio para consultar y persistir el historial de sesiones de entrenamiento
+// Servicio para consultar el historial de sesiones de entrenamiento desde el backend (HU 6A)
 
-import type { SesionHistorial } from "../types/historial.types";
+import type { EjercicioHistorial, SesionHistorial } from "../types/historial.types";
 
-const STORAGE_KEY = "gym_historial_sesiones_v6";
+const API_BASE_URL =
+  (import.meta.env.VITE_API_URL as string) || "http://localhost:3000";
 
-const HISTORIAL_INICIAL_MOCK: SesionHistorial[] = [
-  {
-    id: "sesion-mock-1",
-    fecha: "23/10/2026 - 19:15 hs",
-    planId: 22,
-    planNumero: 22,
-    rutinaId: 1,
-    rutinaNumero: 1,
-    rutinaNombre: "Rutina 1",
-    duracionEstimada: "45 min",
-    totalEjercicios: 8,
-    ejerciciosCompletados: [
-      {
-        ejercicioId: "cal-conjunto-1",
-        nombre: "Calentamiento y Movilidad Articular",
-        categoria: "calentamiento",
-        series: "4 ejercicios de preparación articular",
-        completado: true,
-      },
-      {
-        ejercicioId: 101,
-        nombre: "Puente bajo TRX",
-        categoria: "core",
-        peso: "-",
-        repeticiones: "10",
-        series: "3x10",
-        completado: true,
-      },
-      {
-        ejercicioId: 102,
-        nombre: "Rueda abdominal",
-        categoria: "core",
-        peso: "-",
-        repeticiones: "10",
-        series: "3x10x10''",
-        completado: true,
-      },
-      {
-        ejercicioId: 201,
-        nombre: "Sentadilla profunda",
-        categoria: "fuerza",
-        peso: "38 kg",
-        repeticiones: "12",
-        series: "3x12",
-        completado: true,
-      },
-      {
-        ejercicioId: 202,
-        nombre: "Subidas al banco",
-        categoria: "fuerza",
-        peso: "14 kg",
-        repeticiones: "12",
-        series: "3x12",
-        completado: true,
-      },
-      {
-        ejercicioId: 203,
-        nombre: "Prensa 45°",
-        categoria: "fuerza",
-        peso: "10 kg",
-        repeticiones: "12",
-        series: "3x12",
-        completado: true,
-      },
-      {
-        ejercicioId: 204,
-        nombre: "Sillón de cuadriceps",
-        categoria: "fuerza",
-        peso: "32 kg",
-        repeticiones: "12",
-        series: "3x12",
-        completado: true,
-      },
-      {
-        ejercicioId: 205,
-        nombre: "Camilla de isquiotibiales",
-        categoria: "fuerza",
-        peso: "48 kg",
-        repeticiones: "12",
-        series: "3x12",
-        completado: true,
-      },
-    ],
-  },
-  {
-    id: "sesion-mock-2",
-    fecha: "21/10/2026 - 18:00 hs",
-    planId: 22,
-    planNumero: 22,
-    rutinaId: 2,
-    rutinaNumero: 2,
-    rutinaNombre: "Rutina 2",
-    duracionEstimada: "50 min",
-    totalEjercicios: 9,
-    ejerciciosCompletados: [
-      {
-        ejercicioId: "cal-conjunto-2",
-        nombre: "Calentamiento y Movilidad Articular",
-        categoria: "calentamiento",
-        series: "4 ejercicios de preparación articular",
-        completado: true,
-      },
-      {
-        ejercicioId: 103,
-        nombre: "Plancha lateral con elevación",
-        categoria: "core",
-        peso: "-",
-        repeticiones: "15",
-        series: "3x15",
-        completado: true,
-      },
-      {
-        ejercicioId: 104,
-        nombre: "Bicho muerto con fitball",
-        categoria: "core",
-        peso: "-",
-        repeticiones: "10",
-        series: "3x10",
-        completado: true,
-      },
-      {
-        ejercicioId: 206,
-        nombre: "Press plano con mancuernas",
-        categoria: "fuerza",
-        peso: "10 kg c/u",
-        repeticiones: "12",
-        series: "3x12",
-        completado: true,
-      },
-      {
-        ejercicioId: 207,
-        nombre: "Remo unilateral con mancuerna",
-        categoria: "fuerza",
-        peso: "10 kg",
-        repeticiones: "12",
-        series: "3x12",
-        completado: true,
-      },
-      {
-        ejercicioId: 208,
-        nombre: "Press militar sentado",
-        categoria: "fuerza",
-        peso: "28 kg",
-        repeticiones: "12",
-        series: "3x12",
-        completado: true,
-      },
-      {
-        ejercicioId: 209,
-        nombre: "Vuelos laterales",
-        categoria: "fuerza",
-        peso: "14 kg",
-        repeticiones: "12",
-        series: "3x12",
-        completado: true,
-      },
-      {
-        ejercicioId: 210,
-        nombre: "Jalón al pecho agarre prono",
-        categoria: "fuerza",
-        peso: "42 kg",
-        repeticiones: "12",
-        series: "3x12",
-        completado: true,
-      },
-      {
-        ejercicioId: "est-1",
-        nombre: "Elongación general de grupos musculares",
-        categoria: "estiramiento",
-        series: "10'' por grupo muscular",
-        completado: false,
-      },
-    ],
-  },
-];
+export interface PlanConHistorial {
+  planId: string;
+  totalSesiones: number;
+  primeraSesion: string;
+  etiqueta: string;
+}
+
+export interface HistorialPlanBackendResponse {
+  planId: string;
+  totalSesiones: number;
+  totalEjerciciosCompletados: number;
+  sesiones: SesionHistorial[];
+}
 
 /**
- * Obtener la lista de sesiones del historial
+ * Mapear un item de sesión devuelto por el backend a la estructura visual de SesionHistorial
  */
-export const obtenerHistorialSesiones = (): Promise<SesionHistorial[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw) as SesionHistorial[];
-          resolve(parsed);
-          return;
-        }
-      } catch (err) {
-        console.warn("Error leyendo historial de localStorage:", err);
-      }
+function mapearSesionBackend(item: any): SesionHistorial {
+  const ejerciciosCompletados: EjercicioHistorial[] = [];
 
-      // Guardar el mock inicial si no hay nada
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(HISTORIAL_INICIAL_MOCK));
-      } catch (err) {
-        console.warn("Error inicializando localStorage:", err);
-      }
+  // 1. Calentamiento (obligatorio)
+  if (item.bloques?.calentamiento) {
+    ejerciciosCompletados.push({
+      ejercicioId: "cal-conjunto",
+      nombre:
+        item.bloques.calentamiento.nombre ||
+        "Calentamiento y Movilidad Articular",
+      categoria: "calentamiento",
+      series: "4 ejercicios de preparación articular",
+      completado: Boolean(item.bloques.calentamiento.completado),
+    });
+  }
 
-      resolve(HISTORIAL_INICIAL_MOCK);
-    }, 250);
-  });
-};
+  // 2. Ejercicios registrados (Core y Fuerza)
+  if (Array.isArray(item.ejercicios)) {
+    item.ejercicios.forEach((ej: any) => {
+      ejerciciosCompletados.push({
+        ejercicioId: ej.ejercicioId,
+        nombre: ej.nombre,
+        categoria: (ej.tipo || "fuerza").toLowerCase(),
+        peso: ej.peso && ej.peso !== "" ? ej.peso : "-",
+        repeticiones:
+          ej.repeticiones && ej.repeticiones !== "" ? ej.repeticiones : "-",
+        series:
+          Array.isArray(ej.series) && ej.series.length > 0
+            ? ej.series
+                .map(
+                  (serie: any) =>
+                    `S${serie.numeroSerie}: ${serie.peso} kg × ${serie.repeticiones}`
+                )
+                .join(" · ")
+            : undefined,
+        completado: Boolean(ej.completado),
+      });
+    });
+  }
+
+  // 3. Cardio (si existe)
+  if (item.bloques?.cardio) {
+    ejerciciosCompletados.push({
+      ejercicioId: "car-1",
+      nombre:
+        item.bloques.cardio.nombre || "Entrenamiento Cardiovascular",
+      categoria: "cardio",
+      series: "Cardio continuo",
+      completado: Boolean(item.bloques.cardio.completado),
+    });
+  }
+
+  // 4. Estiramiento (si existe)
+  if (item.bloques?.estiramiento) {
+    ejerciciosCompletados.push({
+      ejercicioId: "est-1",
+      nombre:
+        item.bloques.estiramiento.nombre ||
+        "Elongación y vuelta a la calma",
+      categoria: "estiramiento",
+      series: "Elongación muscular",
+      completado: Boolean(item.bloques.estiramiento.completado),
+    });
+  }
+
+  return {
+    id: item.id,
+    fecha: item.fechaFormateada || new Date(item.fechaInicio).toLocaleString("es-AR"),
+    planId: Number(item.planId) || 1,
+    planNumero: Number(item.planId) || 0,
+    rutinaId: Number(item.rutinaId) || 1,
+    rutinaNumero: item.rutinaNumero || 1,
+    rutinaNombre: item.rutinaNombre || `Rutina ${item.rutinaNumero || 1}`,
+    duracionEstimada: item.duracionEstimada || `${item.duracionMinutos || 45} min`,
+    totalEjercicios: item.totalEjercicios ?? 0,
+    totalEjerciciosCompletados: item.totalEjerciciosCompletados ?? 0,
+    ejerciciosCompletados,
+  };
+}
 
 /**
- * Guardar una nueva sesión en el historial
+ * Planes del alumno que tienen sesiones finalizadas (CP-6A-7)
+ * GET /sesiones-entrenamiento/historial/:alumnoId
  */
-export const agregarSesionAlHistorial = (
+export async function obtenerPlanesConHistorial(
+  alumnoId = "alu-1"
+): Promise<PlanConHistorial[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/sesiones-entrenamiento/historial/${alumnoId}`
+  );
+
+  if (!response.ok) {
+    throw new Error(`Error al obtener planes: status ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Obtener la lista de sesiones del historial y métricas calculadas en backend (HU 6A)
+ * GET /sesiones-entrenamiento/historial/:alumnoId/:planId
+ */
+export async function obtenerHistorialPlan(
+  alumnoId = "alu-1",
+  planId = "plan-1"
+): Promise<HistorialPlanBackendResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/sesiones-entrenamiento/historial/${alumnoId}/${planId}`
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Error al obtener historial: status ${response.status}`
+    );
+  }
+
+  const data = await response.json();
+  const sesiones = (data.sesiones || []).map(mapearSesionBackend);
+
+  return {
+    planId: data.planId,
+    totalSesiones: data.totalSesiones ?? sesiones.length,
+    totalEjerciciosCompletados:
+      data.totalEjerciciosCompletados ??
+      sesiones.reduce((acc: number, s: SesionHistorial) => acc + s.ejerciciosCompletados.length, 0),
+    sesiones,
+  };
+}
+
+/**
+ * Mantiene compatibilidad con componentes que guardaban en localStorage
+ */
+export async function agregarSesionAlHistorial(
   sesion: Omit<SesionHistorial, "id">
-): Promise<SesionHistorial> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      let historial = HISTORIAL_INICIAL_MOCK;
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          historial = JSON.parse(raw);
-        }
-      } catch (err) {
-        console.warn("Error cargando historial previo:", err);
-      }
-
-      const nuevaSesion: SesionHistorial = {
-        ...sesion,
-        id: `sesion-${Date.now()}`,
-      };
-
-      const actualizado = [nuevaSesion, ...historial];
-
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(actualizado));
-      } catch (err) {
-        console.warn("Error guardando nueva sesión en localStorage:", err);
-      }
-
-      resolve(nuevaSesion);
-    }, 200);
-  });
-};
+): Promise<SesionHistorial> {
+  return {
+    ...sesion,
+    id: `sesion-${Date.now()}`,
+  };
+}
