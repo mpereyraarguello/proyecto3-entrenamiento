@@ -1,0 +1,310 @@
+// src/pages/vista-profesor/VistaProfesor.tsx
+import { useState, useEffect } from 'react'
+import type { Exercise, ExerciseType, MuscleGroup } from '../../types/exercise'
+import { ExerciseForm } from './gestionar-ejercicio/crear-ejercicio/components/ExerciseForm'
+import { ExerciseEdit } from './gestionar-ejercicio/editar-ejercicio/components/ExerciseEdit'
+import { ExerciseCardPreview } from './gestionar-ejercicio/crear-ejercicio/components/ExerciseCardPreview'
+import { ExerciseList } from './gestionar-ejercicio/components/ExerciseList'
+import { ExerciseSearch } from './gestionar-ejercicio/consultar-ejercicio/components/ExerciseSearch'
+import { DashboardProfesorPage } from './dashboard/dashboardProfesor'
+import { CrearPlanEntrenamientoPage } from './gestionar-plan-entrenamiento/crear-plan-entrenamiento/CrearPlanEntrenamientoPage'
+import { CheckIcon, DumbbellIcon, PlusIcon, SearchIcon, EditIcon } from './gestionar-ejercicio/components/Icons'
+import { INITIAL_EXERCISES } from '../../data/initialExercises'
+import { CrearAlumnoPage } from './gestionar-alumno/crear-alumno/CrearAlumnoPage'
+import { ModificarAlumnoPage } from './gestionar-alumno/modificar-alumno/ModificarAlumnoPage'
+import { UserPlusIcon, UserEditIcon } from './gestionar-alumno/components-comunes/Icons'
+
+type TabId =
+  | 'dashboard'
+  | 'consulta'
+  | 'registro'
+  | 'edicion'
+  | 'crear-plan'
+  | 'crear-alumno'
+  | 'modificar-alumno'
+
+export default function VistaProfesor() {
+  const [activeTab, setActiveTab] = useState<TabId>('dashboard')
+  const [editingExercise, setEditingExercise] = useState<Exercise | null>(null)
+
+  const [exercises, setExercises] = useState<Exercise[]>(() => {
+    try {
+      const saved = localStorage.getItem('gym_exercises_data')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      }
+    } catch {
+      // Fallback
+    }
+    return INITIAL_EXERCISES
+  })
+
+  const [formData, setFormData] = useState({
+    nombre: '',
+    observacion: '',
+    imagenUrl: '/exercise-example.png',
+    grupoMuscular: 'Tren Inferior' as MuscleGroup,
+    tipoEjercicio: 'fuerza' as ExerciseType,
+  })
+
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('gym_exercises_data', JSON.stringify(exercises))
+    } catch (e) {
+      console.error('Error saving exercises:', e)
+    }
+  }, [exercises])
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg)
+    setTimeout(() => setToastMessage(null), 3500)
+  }
+
+  const handleFormChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleSaveExercise = (newExercise: Exercise) => {
+    setExercises((prev) => [newExercise, ...prev])
+    showToast(`¡Ejercicio "${newExercise.nombre}" registrado exitosamente!`)
+    handleResetRegisterForm()
+    setActiveTab('consulta')
+  }
+
+  const handleUpdateExercise = (updatedExercise: Exercise) => {
+    setExercises((prev) =>
+      prev.map((ex) => (ex.id === updatedExercise.id ? updatedExercise : ex))
+    )
+    showToast(`¡Ejercicio "${updatedExercise.nombre}" actualizado con éxito!`)
+    setEditingExercise(null)
+    setActiveTab('consulta')
+  }
+
+  const handleStartEdit = (exercise: Exercise) => {
+    setEditingExercise(exercise)
+    setActiveTab('edicion')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleCancelEdit = () => {
+    setEditingExercise(null)
+    setActiveTab('consulta')
+  }
+
+  const handleDeleteExercise = (id: string) => {
+    const toDelete = exercises.find((e) => e.id === id)
+    setExercises((prev) => prev.filter((e) => e.id !== id))
+    if (editingExercise?.id === id) {
+      setEditingExercise(null)
+      setActiveTab('consulta')
+    }
+    if (toDelete) showToast(`Ejercicio "${toDelete.nombre}" eliminado.`)
+  }
+
+  const handleResetRegisterForm = () => {
+    setFormData({
+      nombre: '',
+      observacion: '',
+      imagenUrl: '/exercise-example.png',
+      grupoMuscular: 'Tren Inferior',
+      tipoEjercicio: 'fuerza',
+    })
+  }
+
+  const handleNavigateToRegister = (initialName?: string) => {
+    if (initialName?.trim()) {
+      setFormData((prev) => ({ ...prev, nombre: initialName.trim() }))
+    }
+    setEditingExercise(null)
+    setActiveTab('registro')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  return (
+    <div className="app-container">
+      {/* Header */}
+      <header className="app-header">
+        <div className="header-content">
+          <div className="header-brand">
+            <span className="brand-badge">Grupo 12</span>
+            <h1 className="brand-title font-colvetica">
+              Tejo <span>gym</span>
+            </h1>
+          </div>
+
+          <nav className="header-nav">
+            <button
+              type="button"
+              className={`nav-tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
+              onClick={() => setActiveTab('dashboard')}
+            >
+              Dashboard
+            </button>
+
+            <button
+              type="button"
+              className={`nav-tab-btn ${activeTab === 'consulta' ? 'active' : ''}`}
+              onClick={() => setActiveTab('consulta')}
+            >
+              <SearchIcon size={18} />
+              Consultar Ejercicios
+            </button>
+
+            <button
+              type="button"
+              className={`nav-tab-btn ${activeTab === 'registro' ? 'active' : ''}`}
+              onClick={() => { setEditingExercise(null); setActiveTab('registro') }}
+            >
+              <PlusIcon size={18} />
+              Registrar Ejercicio
+            </button>
+
+            <button
+              type="button"
+              className={`nav-tab-btn ${activeTab === 'crear-alumno' ? 'active' : ''}`}
+              onClick={() => setActiveTab('crear-alumno')}
+            >
+              <UserPlusIcon size={18} />
+              Registrar Alumno
+            </button>
+
+            <button
+              type="button"
+              className={`nav-tab-btn ${activeTab === 'modificar-alumno' ? 'active' : ''}`}
+              onClick={() => setActiveTab('modificar-alumno')}
+            >
+              <UserEditIcon size={18} />
+              Modificar Alumno
+            </button>
+
+            {editingExercise && (
+              <button
+                type="button"
+                className={`nav-tab-btn ${activeTab === 'edicion' ? 'active' : ''}`}
+                onClick={() => setActiveTab('edicion')}
+                style={{ borderColor: 'var(--neon-green)' }}
+              >
+                <EditIcon size={16} />
+                Editar ({editingExercise.nombre.slice(0, 15)}...)
+              </button>
+            )}
+          </nav>
+        </div>
+      </header>
+
+      {activeTab === 'dashboard' && (
+        <DashboardProfesorPage
+          onNavigateToRegister={() => handleNavigateToRegister()}
+          onNavigateToConsulta={() => setActiveTab('consulta')}
+          onNavigateToCrearPlan={() => setActiveTab('crear-plan')}
+        />
+      )}
+      {activeTab === 'crear-plan' && <CrearPlanEntrenamientoPage />}
+
+      {/* VISTA 1: CONSULTA Y BÚSQUEDA DE EJERCICIOS */}
+      {activeTab === 'consulta' && (
+        <ExerciseSearch
+          exercises={exercises}
+          onDeleteExercise={handleDeleteExercise}
+          onSelectForEdit={handleStartEdit}
+          onNavigateToRegister={handleNavigateToRegister}
+        />
+      )}
+
+      {/* VISTA: Editar Ejercicio */}
+      {activeTab === 'edicion' && editingExercise && (
+        <ExerciseEdit
+          exercise={editingExercise}
+          onUpdateExercise={handleUpdateExercise}
+          onCancel={handleCancelEdit}
+          onDelete={handleDeleteExercise}
+        />
+      )}
+
+      {/* VISTA: Registrar Ejercicio */}
+      {activeTab === 'registro' && (
+        <>
+          <main className="main-layout">
+            <div className="form-column">
+              <ExerciseForm
+                currentValues={formData}
+                onFormChange={handleFormChange}
+                onSaveExercise={handleSaveExercise}
+                onReset={handleResetRegisterForm}
+              />
+            </div>
+            <div className="preview-column">
+              <ExerciseCardPreview
+                nombre={formData.nombre}
+                observacion={formData.observacion}
+                imagenUrl={formData.imagenUrl}
+                grupoMuscular={formData.grupoMuscular}
+                tipoEjercicio={formData.tipoEjercicio}
+              />
+              <div
+                style={{
+                  backgroundColor: 'var(--bg-surface)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '16px',
+                  padding: '1.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                }}
+              >
+                <div
+                  style={{
+                    width: '45px', height: '45px', borderRadius: '10px',
+                    background: 'rgba(0, 255, 0, 0.12)', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    color: 'var(--neon-green)', flexShrink: 0,
+                  }}
+                >
+                  <DumbbellIcon size={24} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                    Total de Ejercicios
+                  </div>
+                  <div className="font-colvetica" style={{ fontSize: '1.5rem', color: 'var(--text-primary)' }}>
+                    {exercises.length} <span style={{ fontSize: '0.9rem', color: 'var(--neon-green)' }}>registrados</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
+          <ExerciseList
+            exercises={exercises}
+            onDeleteExercise={handleDeleteExercise}
+            onSelectForEdit={handleStartEdit}
+          />
+        </>
+      )}
+
+      {/* VISTA: Registrar Alumno */}
+      {activeTab === 'crear-alumno' && <CrearAlumnoPage />}
+
+      {/* VISTA: Modificar Alumno */}
+      {activeTab === 'modificar-alumno' && <ModificarAlumnoPage />}
+
+      {/* Toast */}
+      {toastMessage && (
+        <div className="toast-notification">
+          <div
+            style={{
+              width: '24px', height: '24px', borderRadius: '50%',
+              backgroundColor: 'var(--neon-green)', display: 'flex',
+              alignItems: 'center', justifyContent: 'center', color: '#000000',
+            }}
+          >
+            <CheckIcon size={16} />
+          </div>
+          <span style={{ fontSize: '0.92rem', fontWeight: 600 }}>{toastMessage}</span>
+        </div>
+      )}
+    </div>
+  )
+}
