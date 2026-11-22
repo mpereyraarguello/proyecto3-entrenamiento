@@ -84,10 +84,8 @@ export default function HistorialSesionCard({
 }: HistorialSesionCardProps) {
   const [abierto, setAbierto] = useState<boolean>(inicialmenteAbierto);
 
-  const totalEjercicios = sesion.ejerciciosCompletados.length;
-  const totalRealizados = sesion.ejerciciosCompletados.filter(
-    (e) => e.completado
-  ).length;
+  const totalEjercicios = sesion.totalEjercicios;
+  const totalRealizados = sesion.totalEjerciciosCompletados;
 
   return (
     <article className="historial__card">
@@ -105,9 +103,11 @@ export default function HistorialSesionCard({
         aria-expanded={abierto}
       >
         <div className="historial__card-top-info">
-          <span className="historial__badge-plan">
-            PLAN N° {sesion.planNumero}
-          </span>
+          {sesion.planNumero > 0 && (
+            <span className="historial__badge-plan">
+              PLAN N° {sesion.planNumero}
+            </span>
+          )}
           <IconoChevron abierto={abierto} />
         </div>
 
@@ -156,7 +156,8 @@ export default function HistorialSesionCard({
                         <span className="historial__ejercicio-nombre">
                           {ej.nombre}
                         </span>
-                        {!esFuerzaOCore && (
+                        {(categoriaLower === "cardio" ||
+                          categoriaLower === "estiramiento") && (
                           <span className="historial__tag-opcional">
                             Opcional
                           </span>

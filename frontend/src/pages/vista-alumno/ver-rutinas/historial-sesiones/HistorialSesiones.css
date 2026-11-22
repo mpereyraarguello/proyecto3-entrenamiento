@@ -450,3 +450,25 @@
     transform: translateY(0);
   }
 }
+
+/* Selector de plan */
+.historial__selector-plan {
+  color: var(--color-subtext, #6e8b7e);
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.85rem;
+  gap: 6px;
+  width: 100%;
+}
+
+.historial__selector-plan select {
+  background: #1a1a1a;
+  border: 1px solid var(--color-border, rgba(110, 139, 126, 0.3));
+  border-radius: 8px;
+  color: var(--color-text, #ffffff);
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 10px 12px;
+  width: 100%;
+}

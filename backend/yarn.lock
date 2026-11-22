@@ -1005,6 +1005,11 @@
     path-to-regexp "8.4.2"
     tslib "2.8.1"
 
+"@nestjs/mapped-types@*":
+  version "12.0.1"
+  resolved "https://registry.yarnpkg.com/@nestjs/mapped-types/-/mapped-types-12.0.1.tgz#847f32994bed00790c1700289e79b48552bb8b08"
+  integrity sha512-AHkgYt6UgJ5XBE3v4zGUUdfPD7kCGBzOa/uHfOYkkRTfojYWLRCCdAJiyWNpIFHCySJH/MR2F/z4MrMo5YheHg==
+
 "@nestjs/platform-express@^11.0.1":
   version "11.2.7"
   resolved "https://registry.yarnpkg.com/@nestjs/platform-express/-/platform-express-11.2.7.tgz#a697fe85860e714817ea33d76f828d67c8ddd096"

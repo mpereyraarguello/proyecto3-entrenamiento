@@ -3,11 +3,17 @@
 
 import type { Ejercicio } from "../../types/rutinas.types";
 
-/** Registro de peso y repeticiones de un ejercicio en una sesión */
-export interface RegistroEjercicio {
-  ejercicioId: number;
+/** Peso y repeticiones cargados en una serie */
+export interface RegistroSerie {
+  numeroSerie: number;
   peso: string;
   repeticiones: string;
+}
+
+/** Registro de las series de un ejercicio en una sesión */
+export interface RegistroEjercicio {
+  ejercicioId: number;
+  series: RegistroSerie[];
   completado: boolean;
 }
 

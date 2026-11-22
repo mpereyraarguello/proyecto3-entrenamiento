@@ -7,22 +7,24 @@ import EjercicioSesionItem from "./EjercicioSesionItem";
 interface SeccionEjerciciosSesionProps {
   titulo: string;
   ejercicios: EjercicioSesion[];
-  onCambiarPeso: (ejercicioId: number, peso: string) => void;
-  onCambiarRepeticiones: (ejercicioId: number, reps: string) => void;
-  onToggleCompletado: (ejercicioId: number) => void;
+  onCambiarSerie: (
+    ejercicioId: number,
+    numeroSerie: number,
+    campo: "peso" | "repeticiones",
+    valor: string
+  ) => void;
 }
 
 export default function SeccionEjerciciosSesion({
   titulo,
   ejercicios,
-  onCambiarPeso,
-  onCambiarRepeticiones,
-  onToggleCompletado,
+  onCambiarSerie,
 }: SeccionEjerciciosSesionProps) {
   if (!ejercicios || ejercicios.length === 0) return null;
 
   const completados = ejercicios.filter((ej) => ej.registro.completado).length;
   const total = ejercicios.length;
+  const todosListos = total > 0 && completados === total;
 
   return (
     <section className="detalle-rutina__seccion-card">
@@ -30,7 +32,11 @@ export default function SeccionEjerciciosSesion({
         <h2 className="detalle-rutina__seccion-titulo detalle-rutina__seccion-titulo--categoria">
           {titulo}
         </h2>
-        <span className="sesion__progreso-badge">
+        <span
+          className={`sesion__progreso-badge ${
+            todosListos ? "sesion__progreso-badge--completo" : ""
+          }`}
+        >
           {completados}/{total}
         </span>
       </div>
@@ -39,12 +45,11 @@ export default function SeccionEjerciciosSesion({
           <EjercicioSesionItem
             key={ej.id}
             ejercicioSesion={ej}
-            onCambiarPeso={onCambiarPeso}
-            onCambiarRepeticiones={onCambiarRepeticiones}
-            onToggleCompletado={onToggleCompletado}
+            onCambiarSerie={onCambiarSerie}
           />
         ))}
       </div>
     </section>
   );
 }
+

@@ -1,0 +1,6 @@
+export enum TipoBloqueSesion {
+  CALENTAMIENTO = 'CALENTAMIENTO',
+  CARDIO = 'CARDIO',
+  ESTIRAMIENTO = 'ESTIRAMIENTO',
+}
+

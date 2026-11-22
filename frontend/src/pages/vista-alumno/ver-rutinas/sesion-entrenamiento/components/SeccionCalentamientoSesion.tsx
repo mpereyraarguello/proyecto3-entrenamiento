@@ -1,5 +1,5 @@
 // SeccionCalentamientoSesion.tsx
-// Sección interactiva de calentamiento en la sesión de entrenamiento (ejercicios opcionales)
+// Sección de calentamiento en la sesión de entrenamiento (obligatorio, tilde único por conjunto)
 
 interface ItemCalentamiento {
   id: string;
@@ -8,9 +8,8 @@ interface ItemCalentamiento {
 
 interface SeccionCalentamientoSesionProps {
   items: ItemCalentamiento[];
-  completadosMap: Record<string, boolean>;
-  onToggleItem: (id: string) => void;
-  onMarcarTodos?: (marcar: boolean) => void;
+  completado: boolean;
+  onToggleCompletado: () => void;
 }
 
 const IconoCheck = () => (
@@ -47,14 +46,9 @@ const IconoFuego = () => (
 
 export default function SeccionCalentamientoSesion({
   items,
-  completadosMap,
-  onToggleItem,
-  onMarcarTodos,
+  completado,
+  onToggleCompletado,
 }: SeccionCalentamientoSesionProps) {
-  const total = items.length;
-  const completados = items.filter((it) => completadosMap[it.id]).length;
-  const todosMarcados = total > 0 && completados === total;
-
   return (
     <section className="detalle-rutina__seccion-card sesion__calentamiento-seccion">
       <div className="sesion__seccion-header-row">
@@ -63,78 +57,76 @@ export default function SeccionCalentamientoSesion({
             <h2 className="detalle-rutina__seccion-titulo detalle-rutina__seccion-titulo--categoria">
               Calentamiento
             </h2>
-            <span className="sesion__badge-opcional">Opcional</span>
           </div>
           <p className="sesion__seccion-descripcion">
-            Ejercicios de movilidad previos. Puedes marcarlos como terminados o dejarlos pendientes sin bloquear la sesión.
+            Ejercicios de movilidad articular. Tildá el bloque una vez completado para poder finalizar la sesión.
           </p>
         </div>
 
-        <div className="sesion__header-acciones-opcional">
-          <span className="sesion__progreso-badge">
-            {completados}/{total}
-          </span>
-          {onMarcarTodos && total > 1 && (
-            <button
-              type="button"
-              className="sesion__boton-marcar-todos"
-              onClick={() => onMarcarTodos(!todosMarcados)}
-            >
-              {todosMarcados ? "Desmarcar todos" : "Marcar todos"}
-            </button>
-          )}
-        </div>
+        <span
+          className={`sesion__progreso-badge ${
+            completado ? "sesion__progreso-badge--completo" : ""
+          }`}
+        >
+          {completado ? "Completado" : "Pendiente"}
+        </span>
       </div>
 
-      <div className="sesion__calentamiento-lista">
-        {items.map((item, index) => {
-          const completado = Boolean(completadosMap[item.id]);
+      <div
+        className={`sesion__ejercicio-item sesion__calentamiento-card-unificada ${
+          completado ? "sesion__ejercicio-item--completado" : ""
+        }`}
+      >
+        <div className="sesion__ejercicio-header">
+          <div className="sesion__ejercicio-info">
+            <span className="sesion__ejercicio-nombre">
+              Circuito de Movilidad Articular
+            </span>
 
-          return (
-            <div
-              key={item.id}
-              className={`sesion__ejercicio-item sesion__calentamiento-item ${
-                completado ? "sesion__ejercicio-item--completado" : ""
-              }`}
-            >
-              <div className="sesion__ejercicio-header">
-                <div className="sesion__ejercicio-info">
-                  <div className="sesion__ejercicio-top-row">
-                    <span className="sesion__calentamiento-numero">
-                      {index + 1}
-                    </span>
-                    <span className="sesion__ejercicio-nombre">
-                      {item.nombre}
-                    </span>
-                  </div>
-                  <div className="sesion__calentamiento-meta">
-                    <span className="sesion__calentamiento-tag">
-                      <IconoFuego />
-                      Movilidad articular
-                    </span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  className={`sesion__boton-check ${
-                    completado ? "sesion__boton-check--activo" : ""
-                  }`}
-                  onClick={() => onToggleItem(item.id)}
-                  aria-label={`${
-                    completado ? "Marcar como pendiente" : "Marcar como terminado"
-                  } ${item.nombre}`}
-                  title={
-                    completado ? "Marcar como pendiente" : "Marcar como terminado"
-                  }
-                >
-                  <IconoCheck />
-                </button>
-              </div>
+            <div className="sesion__calentamiento-meta">
+              <span className="sesion__calentamiento-tag">
+                <IconoFuego />
+                {items.length} ejercicios de preparación articular
+              </span>
             </div>
-          );
-        })}
+
+            {/* Listado de ejercicios que componen el bloque de calentamiento */}
+            <div className="sesion__calentamiento-sublista">
+              {items.map((item, index) => (
+                <div key={item.id} className="sesion__calentamiento-subitem">
+                  <span className="sesion__calentamiento-subitem-numero">
+                    {index + 1}
+                  </span>
+                  <span className="sesion__calentamiento-subitem-nombre">
+                    {item.nombre}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className={`sesion__boton-check ${
+              completado ? "sesion__boton-check--activo" : ""
+            }`}
+            onClick={onToggleCompletado}
+            aria-label={
+              completado
+                ? "Marcar calentamiento como pendiente"
+                : "Marcar calentamiento como completado"
+            }
+            title={
+              completado
+                ? "Marcar calentamiento como pendiente"
+                : "Marcar calentamiento como completado"
+            }
+          >
+            <IconoCheck />
+          </button>
+        </div>
       </div>
     </section>
   );
 }
+
