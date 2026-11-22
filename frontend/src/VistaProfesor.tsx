@@ -12,6 +12,7 @@ import { ExerciseCardPreview } from './pages/vista-profesor/gestionar-ejercicio/
 import { ExerciseForm } from './pages/vista-profesor/gestionar-ejercicio/crear-ejercicio/components/ExerciseForm'
 import { ExerciseEdit } from './pages/vista-profesor/gestionar-ejercicio/editar-ejercicio/components/ExerciseEdit'
 import { CrearPlanEntrenamientoPage } from './pages/vista-profesor/gestionar-plan-entrenamiento/crear-plan-entrenamiento/CrearPlanEntrenamientoPage'
+import { ConsultarPlanEntrenamiento } from './pages/vista-profesor/gestionar-plan-entrenamiento/consultar-plan-entrenamiento/ConsultarPlanEntrenamiento'
 import type { Exercise, MuscleGroup, ExerciseType } from './types/exercise'
 
 type TabId =
@@ -20,6 +21,7 @@ type TabId =
   | 'registro'
   | 'edicion'
   | 'crear-plan'
+  | 'consultar-plan'
   | 'crear-alumno'
   | 'modificar-alumno'
 
@@ -146,6 +148,15 @@ export default function VistaProfesor() {
 
             <button
               type="button"
+              className={`nav-tab-btn ${activeTab === 'consultar-plan' ? 'active' : ''}`}
+              onClick={() => setActiveTab('consultar-plan')}
+            >
+              <SearchIcon size={18} /> {/* Reutilizamos el icono de búsqueda */}
+              Consultar Planes
+            </button>
+
+            <button
+              type="button"
               className={`nav-tab-btn ${activeTab === 'consulta' ? 'active' : ''}`}
               onClick={() => setActiveTab('consulta')}
             >
@@ -203,6 +214,8 @@ export default function VistaProfesor() {
         />
       )}
       {activeTab === 'crear-plan' && <CrearPlanEntrenamientoPage />}
+
+      {activeTab === 'consultar-plan' && <ConsultarPlanEntrenamiento />}
 
       {/* VISTA 1: CONSULTA Y BÚSQUEDA DE EJERCICIOS */}
       {activeTab === 'consulta' && (

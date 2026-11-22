@@ -11,14 +11,17 @@ import {
 // Use Cases
 import { CrearPlanEntrenamientoUseCase } from '../../../../application/use-cases/crear-plan-entrenamiento/crear-plan-entrenamiento.use-case';
 import { CrearPlanEntrenamientoCommand } from '../../../../application/use-cases/crear-plan-entrenamiento/crear-plan-entrenamiento.command';
+import { ObtenerPlanEntrenamientoUseCase, ObtenerPlanQuery } from 'src/modules/planes-entrenamiento/application/use-cases/obtener-plan/obtener-plan.use-case';
+import { ListarPlanesEntrenamientoUseCase, ListarPlanesQuery } from 'src/modules/planes-entrenamiento/application/use-cases/listar-planes/listar-planes.use-case';
 
 // DTOs
 import { CrearPlanEntrenamientoDto } from './dtos/crear-plan-entrenamiento.dto';
 import { ObtenerPlanActivoQueryDto } from './dtos/obtener-plan-activo-query.dto';
 import { ListarPlanesQueryDto } from './dtos/listar-planes-query.dto';
+import { ObtenerPlanParamDto } from './dtos/obtener-plan-param.dto';
 
 // Responses
-import { PlanEntrenamientoResponse } from '../../../../application/responses/plan-entrenamiento.response';
+import { PlanEntrenamientoListItemResponse, PlanEntrenamientoResponse } from '../../../../application/responses/plan-entrenamiento.response';
 
 // ⚠️ Importamos los Use Cases de lectura e inactivación que armaremos luego.
 // Por ahora los dejo comentados para que puedas compilar solo con Crear.
@@ -31,6 +34,8 @@ export class PlanesEntrenamientoController {
     private readonly crearPlanUseCase: CrearPlanEntrenamientoUseCase,
     // private readonly obtenerActivoUseCase: ObtenerPlanActivoAlumnoUseCase,
     // private readonly inactivarUseCase: InactivarPlanEntrenamientoUseCase,
+    private readonly listarPlanesUseCase: ListarPlanesEntrenamientoUseCase,
+    private readonly obtenerPlanUseCase: ObtenerPlanEntrenamientoUseCase,
   ) {}
 
   // ─────────────────────────────────────────────────────────
@@ -84,13 +89,24 @@ export class PlanesEntrenamientoController {
   //   return this.listarPlanesUseCase.execute({ alumnoId: query.alumnoId });
   // }
 
+  // Listar Planes con filtros opcionales
+  @Get()
+  async findAll(
+    @Query() dto: ListarPlanesQueryDto, //recibe el DTO validado
+  ): Promise<PlanEntrenamientoListItemResponse[]> {
+    //convierte DTO a Query y ejecuta el caso de uso
+    const query = new ListarPlanesQuery(dto.alumnoId, dto.estado);
+    return this.listarPlanesUseCase.execute(query);
+  }
+
   // ─────────────────────────────────────────────────────────
   // GET /planes-entrenamiento/:id
   // ─────────────────────────────────────────────────────────
-  // @Get(':id')
-  // async findOne(@Param('id') id: string): Promise<PlanEntrenamientoResponse> {
-  //   return this.obtenerPlanUseCase.execute({ id });
-  // }
+  @Get(':id')
+  async findOne(@Param() params: ObtenerPlanParamDto): Promise<PlanEntrenamientoResponse> {
+    const query = new ObtenerPlanQuery(params.id);
+    return this.obtenerPlanUseCase.execute(query);
+  }
 
   // ─────────────────────────────────────────────────────────
   // PATCH /planes-entrenamiento/:id/inactivar

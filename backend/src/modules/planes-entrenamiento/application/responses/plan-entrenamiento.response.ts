@@ -1,4 +1,5 @@
 import { PlanEntrenamiento } from '../../domain/entities/plan-entrenamiento.entity';
+import { AlumnoResumen } from '../ports/alumno-consulta.ports';
 
 export class PlanEntrenamientoResponse {
   constructor(
@@ -46,5 +47,34 @@ export class PlanEntrenamientoResponse {
     getSegundos(): number;
   }): string {
     return `${pausa.getMinutos()}' ${pausa.getSegundos()}"`;
+  }
+}
+
+export class PlanEntrenamientoListItemResponse {
+  constructor(
+    public readonly id: string,
+    public readonly alumnoId: string,
+    public readonly alumnoNombre: string, //Datos ya resueltos para la tabla
+    public readonly nombrePlan: string,
+    public readonly fechaInicio: string,
+    public readonly fechaFin: string,
+    public readonly estado: string,
+    public readonly cantidadRutinas: number,
+  ) {}
+
+  static desdeDominio(
+    plan: PlanEntrenamiento,
+    alumno: AlumnoResumen | undefined, //Puede ser undefined si no se encontró el alumno
+  ): PlanEntrenamientoListItemResponse {
+    return new PlanEntrenamientoListItemResponse(
+      plan.getId(),
+      plan.getAlumnoId(),
+      alumno ? `${alumno.nombre} ${alumno.apellido}` : 'Alumno Desconocido',
+      plan.getNombre(),
+      plan.getPeriodo().getInicio().toISOString(),
+      plan.getPeriodo().getFin().toISOString(),
+      plan.getEstado(),
+      plan.getRutinas().length,
+    );
   }
 }

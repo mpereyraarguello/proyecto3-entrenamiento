@@ -7,6 +7,8 @@ export interface PlanEntrenamientoRepository {
   findUltimoByAlumno(alumnoId: string): Promise<PlanEntrenamiento | null>;
   findHistorialByAlumno(alumnoId: string): Promise<PlanEntrenamiento[]>;
   verificarSiEjercicioEstaEnPlanActivo(ejercicioId: number): Promise<boolean>;
+  findAll(filtros?: {alumnoId?: string; estado?: string}): Promise<PlanEntrenamiento[]>;
+  findByIdDetalles(id: string): Promise<PlanEntrenamiento | null>;
 }
 
 export const PLAN_ENTRENAMIENTO_REPOSITORY = Symbol(
