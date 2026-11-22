@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BuscarEjercicioQuery } from 'src/modules/ejercicios/application/queries/buscar-ejercicio.query';
 import { Ejercicio } from 'src/modules/ejercicios/domain/entities/ejercicio.entity';
 import { Repository } from 'typeorm';
 import { EjercicioMapper } from './mappers/ejercicio.persistence-mapper';
 import { EjercicioOrmEntity } from './orm-entities/ejercicio.orm-entity';
-import type { IEjercicioRepository } from 'src/modules/ejercicios/domain/repositories/ejercicio.repository';
+import type { IEjercicioRepository,CriteriosBusquedaEjercicio,} from 'src/modules/ejercicios/domain/repositories/ejercicio.repository';
 
 
 @Injectable()
@@ -36,24 +35,24 @@ export class EjercicioTypeOrmRepository implements IEjercicioRepository {
     return entities.map(EjercicioMapper.toDomain);
   }
 
-  async buscarEjercicios(query: BuscarEjercicioQuery): Promise<{ data: Ejercicio[]; total: number }> {
+  async buscarEjercicios(criterios: CriteriosBusquedaEjercicio): Promise<{ data: Ejercicio[]; total: number }> {
     const qb = this.ormRepo.createQueryBuilder('ejercicio');
 
-    if (query.termino) {
-      const termino = `%${query.termino.toLowerCase().trim()}%`;
+    if (criterios.termino) {
+      const termino = `%${criterios.termino.toLowerCase().trim()}%`;
       qb.andWhere(
         '(LOWER(ejercicio.nombre) LIKE :termino OR LOWER(ejercicio.observacion) LIKE :termino)',
         { termino },
       );
     }
 
-    if (query.tipoEjercicio) {
-      qb.andWhere('ejercicio.tipo_ejercicio = :tipo', { tipo: query.tipoEjercicio });
+    if (criterios.tipoEjercicio) {
+      qb.andWhere('ejercicio.tipo_ejercicio = :tipo', { tipo: criterios.tipoEjercicio });
     }
 
-    if (query.grupoMuscular) {
+    if (criterios.grupoMuscular) {
       qb.andWhere('ejercicio.grupos_musculares LIKE :grupo', {
-        grupo: `%"${query.grupoMuscular}"%`,
+        grupo: `%"${criterios.grupoMuscular}"%`,
       });
     }
 

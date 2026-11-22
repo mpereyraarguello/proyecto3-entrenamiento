@@ -25,7 +25,12 @@ export class EjercicioQueryService {
   }
 
   async findBy(query: BuscarEjercicioQuery): Promise<{ data: EjercicioResponse[]; total: number }> {
-    const result = await this.repository.buscarEjercicios(query);
+    const result = await this.repository.buscarEjercicios({
+      termino: query.termino,
+      tipoEjercicio: query.tipoEjercicio,
+      grupoMuscular: query.grupoMuscular,
+    });
+
     return {
       data: result.data.map((doc) => EjercicioMapper.toDto(doc)),
       total: result.total,

@@ -14,10 +14,12 @@ import { ValidarEjercicioNoEnRutinaActivaValidator } from '../application/valida
 import { VERIFICADOR_EJERCICIO_PORT } from '../application/ports/verificador-ejercicio-en-rutina-activa.port';
 import { VerificarEjercicioEnRutinaActivaUseCase } from 'src/modules/planes-entrenamiento/application/use-cases/verificar-ejercicio-en-rutina-activa/verificar-ejercicio-en-rutina-activa.use-case';
 import { VerificadorEjercicioEnRutinaActivaAdapter } from './adapters/out/modules/verificador-ejercicio-en-rutina-activa.adapter';
+import { PlanEntrenamientoModule } from 'src/modules/planes-entrenamiento/infrastructure/plan-entrenamiento.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([EjercicioOrmEntity]),
+    PlanEntrenamientoModule,
   ],
   controllers: [
     EjercicioController,
@@ -30,6 +32,7 @@ import { VerificadorEjercicioEnRutinaActivaAdapter } from './adapters/out/module
     EjercicioFinder,
     EjercicioQueryService,
     ValidarEjercicioNoEnRutinaActivaValidator,
+    EjercicioTypeOrmRepository,
     {
       provide: EJERCICIO_REPOSITORY,
       useClass: EjercicioTypeOrmRepository,
@@ -46,6 +49,7 @@ import { VerificadorEjercicioEnRutinaActivaAdapter } from './adapters/out/module
     EjercicioFinder,
     ModificarEjercicioUseCase,
     EliminarEjercicioUseCase,
+    EjercicioTypeOrmRepository
   ],
 })
 export class EjercicioModule {}
