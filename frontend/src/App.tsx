@@ -1,9 +1,8 @@
 // App.tsx
 import { Routes, Route } from "react-router-dom";
-
+import VistaAlumno from "./pages/vista-alumno/VistaAlumno";
+import VistaProfesor from "./pages/vista-profesor/VistaProfesor";
 import "./App.css";
-import VistaAlumno from "./VistaAlumno";
-import VistaProfesor from "./VistaProfesor";
 
 export default function App() {
   return (
